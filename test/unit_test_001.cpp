@@ -47,7 +47,7 @@ unittest(test_constants)
 
 unittest(test_constructor)
 {
-  AS7331 obj;
+  AS7331 obj(0x2A);
 }
 
 
