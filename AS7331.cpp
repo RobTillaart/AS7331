@@ -369,7 +369,7 @@ int AS7331::getLastError()
 //  PRIVATE
 //
 
-float AS7331::_adjustGainTimeFactor()
+void AS7331::_adjustGainTimeFactor()
 {
   _GainTimeFactor = pow(0.5, (11 - _gain) + _convTime);
   //  ref: _GainTimeFactor = pow(0.5, (11 - _gain)) * pow(0.5, _convTime);

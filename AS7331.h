@@ -192,7 +192,7 @@ private:
   uint8_t  _error;
 
   //  TODO adjust when gain or Tconv changes.
-  float    _adjustGainTimeFactor();
+  void     _adjustGainTimeFactor();
   float    _GainTimeFactor =  1;
 
   int      _writeRegister8(uint8_t reg, uint8_t value);
