@@ -358,6 +358,8 @@ Used for external trigger of start/stop measurement
 - I2C performance (as conversion time can be long not relevant?)
 - implement Lambert law to compensate for incoming angle.
 - check handle Tconv == 15 case (last column) correctly.
+- mention VEML6070 ?
+
 
 #### Wont
 

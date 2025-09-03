@@ -49,7 +49,7 @@ void loop()
     Serial.print("TEMP:\t");
     Serial.println(mySensor.getCelsius());
     Serial.println();
-    setMeasurementMode();
+    mySensor.setMeasurementMode();
   }
 
 }
