@@ -1,8 +1,11 @@
 //
-//    FILE: AS7331_manual.ino
+//    FILE: AS7331_manual_IRQ.ino
 //  AUTHOR: Rob Tillaart
-// PURPOSE: test basic behaviour and performance
+// PURPOSE: test basic behaviour (verbose)
 //     URL: https://github.com/RobTillaart/AS7331
+
+//  Connect the Ready Pin to an IRQ Pin e.g. 2
+//  to detect the conversion is ready.
 
 
 #include "AS7331.h"
@@ -10,11 +13,12 @@
 
 AS7331 mySensor(0x74);
 
-volatile bool RDY = false;
+volatile bool AS7331_READY = false;
+const uint8_t IRQ_PIN = 2;
 
 void RDY_IRQ()
 {
-  RDY = true;
+  AS7331_READY = true;
 }
 
 
@@ -29,7 +33,7 @@ void setup()
 
   // READY Interrupt.
   pinMode(2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(2), RDY_IRQ, RISING);
+  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), RDY_IRQ, RISING);
 
   Wire.begin();
 
@@ -82,9 +86,9 @@ void setup()
 
 void loop()
 {
-  if (RDY == true)
+  if (AS7331_READY == true)
   {
-    RDY = false;
+    AS7331_READY = false;
     //  Serial.print("STAT:\t");
     //  Serial.println(mySensor.readStatus(), HEX);
     Serial.print("UVA:\t");
@@ -98,6 +102,7 @@ void loop()
     Serial.print("ERR:\t");
     Serial.println(mySensor.getLastError());
     Serial.println();
+
     //  start new measurement.
     mySensor.startMeasurement();
   }

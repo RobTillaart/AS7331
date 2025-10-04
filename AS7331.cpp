@@ -2,7 +2,7 @@
 //    FILE: AS7331.cpp
 //  AUTHOR: Rob Tillaart
 //    DATE: 2025-08-28
-// VERSION: 0.1.0
+// VERSION: 0.2.0
 // PURPOSE: Arduino library for AS7331 UV sensor
 //     URL: https://github.com/RobTillaart/AS7331
 
@@ -59,6 +59,8 @@ bool AS7331::begin()
   {
     return false;
   }
+  softwareReset();
+  setConfigurationMode();
   setMode(AS7331_MODE_MANUAL);
   setGain(AS7331_GAIN_2x);
   setConversionTime(AS7331_CONV_064);
@@ -197,6 +199,7 @@ void AS7331::startMeasurement()
 {
   // uint8_t value = _readRegister8(AS7331_REG_OSR);
   // value |= 0x80;
+  //  Force 0x83 -> might change in future
   _writeRegister8(AS7331_REG_OSR, 0x83);
 }
 
@@ -264,7 +267,7 @@ void AS7331::setRDYPushPull()
 
 /////////////////////////////////////////////
 //
-//  READY PIN
+//  CLOCK FREQUENCY
 //
 bool AS7331::setClockFrequency(uint8_t CCLK)
 {
@@ -296,7 +299,8 @@ uint8_t AS7331::readOSR()
 
 uint16_t AS7331::readStatus()
 {
-  //  first byte == OSR (page 59)
+  //  LOW byte  == OSR (page 59)
+  //  HIGH byte == status
   uint16_t value = _readRegister16(AS7331_REG_STATUS);
   return value;
 }
@@ -304,8 +308,7 @@ uint16_t AS7331::readStatus()
 bool AS7331::conversionReady()
 {
   uint16_t value = _readRegister16(AS7331_REG_STATUS);
-  return value & 0xFF;
-  //  return value & 0x04;
+  return (value & 0x0800) > 0;
 }
 
 

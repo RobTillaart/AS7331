@@ -3,7 +3,7 @@
 //    FILE: AS7331.h
 //  AUTHOR: Rob Tillaart
 //    DATE: 2025-08-28
-// VERSION: 0.1.0
+// VERSION: 0.2.0
 // PURPOSE: Arduino library for AS7331 UV sensor
 //     URL: https://github.com/RobTillaart/AS7331
 //          https://www.sparkfun.com/products/23517
@@ -15,7 +15,7 @@
 #include "Wire.h"
 
 
-#define AS7331_LIB_VERSION         (F("0.1.0"))
+#define AS7331_LIB_VERSION         (F("0.2.0"))
 
 #ifndef AS7331_DEFAULT_ADDRESS
 #define AS7331_DEFAULT_ADDRESS     0x74
@@ -119,40 +119,41 @@ public:
 
 
   //  REGISTER 0x00 OSR
-  //       control
+  //  control, partially tested.
   void     stopMeasurement();
-  void     startMeasurement();
+  void     startMeasurement();  //  sets in Measurement mode too.
   void     powerDown();
   void     powerUp();
   void     softwareReset();
   void     setConfigurationMode();
   void     setMeasurementMode();
-  //  TODO  uint8_t readBackOSR(); or separate functions?
 
 
   //  READY PIN, REGISTER 0x08 CREG3
+  //  not tested.
   void     setRDYOpenDrain();
   void     setRDYPushPull();  //  default
 
 
   //  INTERNAL CLOCK, REGISTER 0x08 CREG3
-  //  placeholder.
+  //  not tested.
   bool     setClockFrequency(uint8_t CCLK);
   uint8_t  getClockFrequency();
 
 
   //
-  //  MEASURMENT STATE
+  //  MEASUREMENT STATE
   //
-  //  READ FUNCTION
-  //
-  //       STATUS
-  //       OSR + status in MEASUREMENT MODE (page 59)
   //       OSR in CONFIGURATION MODE
   uint8_t  readOSR();
+  //       OSR + status in MEASUREMENT MODE (page 59)
+  //       LOW byte  == OSR (page 59)
+  //       HIGH byte == status
   uint16_t readStatus();
+  //  TO be used in POLLING mode
   bool     conversionReady();
-  //       READ
+
+  //       READ the actual data
   //       returns in microWatts / cm2
   float    getUVA();
   float    getUVB();
@@ -183,15 +184,12 @@ public:
   //  OPTIONS, REGISTER 0x0B OPTREG
   //  read datasheet, low level I2C - INITT_IDX in bit 0.
 
-  //  bool conversionReady();  //  check status register (other?)
 
-
+private:
   int      _writeRegister8(uint8_t reg, uint8_t value);
   uint8_t  _readRegister8(uint8_t reg);
   uint16_t _readRegister16(uint8_t reg);
 
-
-private:
   uint8_t  _address = 0x2A;
   TwoWire* _wire;
 
@@ -200,11 +198,9 @@ private:
   uint8_t  _convTime;
   uint8_t  _error;
 
-  //  TODO adjust when gain or Tconv changes.
+  //  to adjust when gain or Tconv changes.
   void     _adjustGainTimeFactor();
   float    _GainTimeFactor =  1;
-
-
 };
 
 

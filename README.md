@@ -11,27 +11,24 @@
 
 # AS7331
 
-Arduino library for the AS7331 UV sensor. UV-A, UV-B, UV-C.
+Arduino library for the I2C AS7331 UV sensor. UV-A, UV-B, UV-C 
 
 
 ## Warning
 
 **Always take precautions as UV radiation can cause sunburn, eye damage and other severe problems**.
 
-Do not expose yourself to the sun as UV source too long.
+Do not expose yourself to the sun or any other UV source too long.
 
-When working with UV light, natural or artificial (TL LED laser a.o.) use appropriate shielding. Do not look right into UV light sources.
+When working with UV light, natural or artificial (TL LED laser a.o.) use appropriate shielding. Do not look right into UV light sources (e.g. the sun). Do not expose yourself to any UV source too long.
 
 
 ## Description
 
 **Experimental**
 
-Library is not tested with hardware yet.
-
-
-This library is to use the AS7331 UV sensor.
-The sensor can read UV-A, UV-B, UV-C and temperature in Celsius.
+This Arduino library is to use the AS7331 UV sensor.
+The AS7331 is a device that measures UV-A, UV-B and UV-C and internal temperature (Celsius) simultaneously.
 
 |  Channel  |  peak wavelength  |  Range            |
 |:---------:|:-----------------:|:------------------|
@@ -39,14 +36,20 @@ The sensor can read UV-A, UV-B, UV-C and temperature in Celsius.
 |    UVB    |  λ = 300 nm       |  280 nm – 315 nm  |
 |    UVA    |  λ = 360 nm       |  315 nm – 410 nm  |
 
+The library allows the user to set the **GAIN** from 1 to 2048 and an **exposure time** from 1 millisecond to 16384 milliseconds (16+ seconds).
+
+The device has more options to configure but these are not implemented yet.
+
+
 Check datasheet for details about sensitivity etc.
 
-
-//  TODO elaborate
-//  configure / measurement mode.
-
-
 Feedback as always is welcome.
+
+
+### Breaking change 0.2.0
+
+The 0.1.0 version is obsolete as it just did not work. 
+Version 0.2.0 has been verified to work in MANUAL and CONTINUOUS mode.
 
 
 ### Datasheet warning
@@ -70,7 +73,7 @@ Via emoji tab: WIN .  => Ω tab => search for λ)
 
 ### Related
 
-UV
+UV related
 
 - https://en.wikipedia.org/wiki/Ultraviolet
 - https://github.com/RobTillaart/AnalogUVSensor
@@ -80,7 +83,7 @@ UV
 
 Other
 
-- https://github.com/RobTillaart/map2colour for a continuous colour scale
+- https://github.com/RobTillaart/map2colour - for a continuous colour scale
 - https://github.com/RobTillaart/Temperature - conversions.
 
 
@@ -95,11 +98,30 @@ https://www.tinytronics.nl/nl/sensoren/optisch/licht-en-kleur/as7331-uv-lichtsen
 
 ## I2C
 
-400 kHz fast mode
+### I2C Performance
+
+The datasheet states that the device support up to 400 kHz fast mode.
+(not verified the actual range)
+As the exposure time "blocks the device" quite some time, the only relevant 
+function to test seems to be **conversionReady()** as that can be called 
+many times.
+
+|  Clock     |  time (us)  |  Notes  |
+|:----------:|:-----------:|:--------|
+|   100 KHz  |             |  default
+|   200 KHz  |             |
+|   300 KHz  |             |
+|   400 KHz  |             |  max datasheet
+|   500 KHz  |             |
+|   600 KHz  |             |
+
+TODO: write and run performance sketch on hardware.
+
 
 ### I2C address
 
-The device has two address lines allowing for up to four I2C addresses.
+The device has two address lines allowing for up to four I2C addresses,
+on one I2C bus.
 
 |  A0  |  A1  |  Address  |
 |:----:|:----:|:---------:|
@@ -127,24 +149,6 @@ too if they are behind the multiplexer.
 - https://github.com/RobTillaart/TCA9548
 
 
-### I2C Performance
-
-Only test **readSensor()** as that is the main function.
-
-
-|  Clock     |  time (us)  |  Notes  |
-|:----------:|:-----------:|:--------|
-|   100 KHz  |             |  default
-|   200 KHz  |             |
-|   300 KHz  |             |
-|   400 KHz  |             |
-|   500 KHz  |             |
-|   600 KHz  |             |
-
-
-TODO: run performance sketch on hardware.
-
-
 ## Interface
 
 ```cpp
@@ -153,26 +157,34 @@ TODO: run performance sketch on hardware.
 
 ### Constructor
 
-- **AS7331(uint8_t address, TwoWire \*wire = &Wire)** optional select I2C bus.
-- **bool begin(uint8_t RDY = 255, uint8_t SYN = 255)** Optional defines the RDY and SYN pins. Returns true if the device address can be found on I2C bus.
+- **AS7331(uint8_t address, TwoWire \*wire = &Wire)** set the I2C address to use and optional select an I2C bus.
+- **bool begin()** resets the device to the default configuration, **AS7331_MODE_MANUAL**, **AS7331_GAIN_2x** and **AS7331_CONV_064**.
+Returns true if the device address can be found on I2C bus.
 - **bool isConnected()** Returns true if the device address can be found on I2C bus.
 - **uint8_t getAddress()** Returns the device address set in the constructor.
 
 
 ### Mode
 
-- **void setMode(uint8_t mode = AS7331_MODE_MANUAL)**
-- **uint8_t getMode()**
+Note: these functions only work in CONFIGURATION MODE.
+
+- **void setMode(uint8_t mode = AS7331_MODE_MANUAL)** idem. Manual mode is default.
+- **uint8_t getMode()** returns the set mode.
 
 |  Mode                    |  value  |  Notes  |
 |:-------------------------|:-------:|:--------|
-|  AS7331_MODE_CONTINUOUS  |   0x00  |  not supported yet
+|  AS7331_MODE_CONTINUOUS  |   0x00  |
 |  AS7331_MODE_MANUAL      |   0x01  |
-|  AS7331_MODE_SYNS        |   0x02  |  not supported yet
-|  AS7331_MODE_SYND        |   0x03  |  not supported yet
+|  AS7331_MODE_SYNS        |   0x02  |  not supported / tested yet
+|  AS7331_MODE_SYND        |   0x03  |  not supported / tested yet
 
 
 ### Standby
+
+Note: these functions only work in CONFIGURATION MODE.
+
+For temporary saving of energy one can put the device in a standby mode.
+Read the datasheet for the details.
 
 - **void setStandByOn()** idem.
 - **void setStandByOff()** idem.
@@ -180,12 +192,14 @@ TODO: run performance sketch on hardware.
 
 ### Gain
 
+Note: these functions only work in CONFIGURATION MODE.
+
 The gain parameter is 0..11, which goes from 2048x .. 1x.
 See table below.
   
-- **bool setGain(uint8_t gain)** set gain, if value > 11 the
+- **bool setGain(uint8_t gain)** sets the gain, if value > 11 the
 function returns false.
-- **uint8_t getGain()** returns set value.
+- **uint8_t getGain()** returns the set value from device.
 
 |  define             |  value  |  Notes  |
 |:--------------------|:-------:|:--------|
@@ -205,10 +219,14 @@ function returns false.
 
 ### Timing conversion (Tconv)
 
-The convTime parameter is 0..15, which goes from 1 millisecond
-to 16384 millisecond. Note value 15 is 1 millisecond again.
+Note: these functions only work in CONFIGURATION MODE.
 
-See table below.
+The convTime parameter (exposure time) is 0..15, which goes from 1 millisecond
+to 16384 millisecond. See table below.
+
+Note value 15 is 1 millisecond like value 0 and in fact uses value 0 (overruled).
+The difference need to be investigated.
+
 
 - **void setConversionTime(uint8_t convTime)** set Tconv, 
 if the value > 15 the function returns false.
@@ -233,7 +251,7 @@ The number in the define indicates the milliseconds.
 |  AS7331_CONV_4096   |   12    |
 |  AS7331_CONV_8192   |   13    |
 |  AS7331_CONV_16384  |   14    |
-|  AS7331_CONV_001xx  |   15    |  1 millisecond
+|  AS7331_CONV_001xx  |   15    |  1 millisecond (not supported yet).
 
 
 ### DeviceID
@@ -282,35 +300,44 @@ when the CCLK == 0. See datasheet page 38 for details.
 
 ### Read
 
-TODO must be in measurement mode 8.2.9
+Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 
-- **uint8_t readStatus()** get status back, see table below.
-- **bool conversionReady()** from NOTREADY status field. (or use NDATA?)
 - **float getUVA()** returns in microWatts / cm2
 - **float getUVB()** returns in microWatts / cm2
 - **float getUVC()** returns in microWatts / cm2
 - **float getCelsius()** returns in Celsius.
 
 
+### Status
+
+Note: these functions only work in MEASUREMENT MODE. (8.2.9)
+
+- **uint8_t readStatus()** get status back, see table below.
+- **bool conversionReady()** from NOTREADY status field. (or use NDATA?)
+
 Status table, see datasheet for details.
 
-|  bit  |  name          |  meaning  |
-|:-----:|:---------------|:----------|
-|   7   |  OUTCONVOF     |  overflow 24 bit
-|   6   |  MRESOF        |  overflow of one of the UV registers
-|   5   |  ADCOF         |  internal overflow
-|   4   |  LDATA         |  data overwritten
-|   3   |  NDATA         |  new data available
-|   2   |  NOTREADY      |  0 = ready, 1 = busy, inverted RDY pin.
-|   1   |  STANDBYSTATE  |  1 = stand by
-|   0   |  POWERSTATE    |  1 = power down
+|  bit  |  name          |  test  |  meaning  |
+|:-----:|:---------------|:------:|:----------|
+|   7   |  OUTCONVOF     |    N   |  overflow 24 bit
+|   6   |  MRESOF        |    N   |  overflow of one of the UV registers
+|   5   |  ADCOF         |    N   |  internal overflow
+|   4   |  LDATA         |    N   |  data overwritten
+|   3   |  NDATA         |    Y   |  new data available - used by conversionReady().
+|   2   |  NOTREADY      |    N   |  0 = ready, 1 = busy, inverted RDY pin.
+|   1   |  STANDBYSTATE  |    N   |  1 = stand by
+|   0   |  POWERSTATE    |    N   |  1 = power down
+
+TODO: only NDATA is tested yet.
 
 
 ### RDY pin
 
-When the AS7331 is converting the READY pin is LOW, 
-when the conversion is done the READY pin goes HIGH.
-This info is also available in the status register and with:
+When the AS7331 is converting the READY pin is LOW,
+when the conversion is done the READY pin pulses HIGH for a short moment.
+This can be used to trigger an interrupt. See examples.
+
+This end of conversion info is also available in the status register and with:
 - **bool conversionReady()**
 
 
@@ -319,7 +346,6 @@ This info is also available in the status register and with:
 TODO, not supported yet.
 
 Used for external trigger of start/stop measurement 
-
 
 
 ### Debug
@@ -331,11 +357,9 @@ Used for external trigger of start/stop measurement
 
 #### Must
 
-- get hardware
-- test MANUAL mode
 - test different configurations (gain Tconv)
 - improve documentation
-
+- fix TODO's in code and documentation
 
 #### Should
 
@@ -343,8 +367,6 @@ Used for external trigger of start/stop measurement
   (gain is limited with higher clocks, or should gain be leading?).
 - how about 17-24 bits reads
 - reorganize code
-- fix TODO's in code and documentation
-- add + test CONT mode 
 - add + test SYNS mode
 - add + test SYND mode
 - add examples

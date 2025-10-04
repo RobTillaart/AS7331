@@ -82,8 +82,13 @@ void setup()
 
 void loop()
 {
-  uint16_t status = mySensor.readStatus();
-  if (status & 0x0800)
+  //  alternative, if you need status too
+  //  uint16_t status = mySensor.readStatus();
+  //  if (status & 0x0800)
+  //  {
+  //  }
+
+  if (mySensor.conversionReady())
   {
     Serial.print("UVA:\t");
     Serial.println(mySensor.getUVA());
