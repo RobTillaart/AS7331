@@ -14,6 +14,7 @@ getMode	KEYWORD2
 
 setStandByOn	KEYWORD2
 setStandByOff	KEYWORD2
+getStandByMode	KEYWORD2
 
 setGain	KEYWORD2
 getGain	KEYWORD2
@@ -30,8 +31,8 @@ powerUp	KEYWORD2
 softwareReset	KEYWORD2
 setConfigurationMode	KEYWORD2
 setMeasurementMode	KEYWORD2
-readOSR	KEYWORD2
 
+readOSR	KEYWORD2
 readStatus	KEYWORD2
 conversionReady	KEYWORD2
 

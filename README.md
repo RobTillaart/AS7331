@@ -57,8 +57,7 @@ and any other applications that may cause personal injury due to the product's f
 
 ## Angle sensitivity
 
-The library does not correct for the incoming angle of the UV light. See future actions below.
-
+Angle of incidence is +-10 degrees, so Cosine law not needed(?).
 Search for Lambert’s Cosine Law on Wikipedia for details.
 
 
@@ -104,10 +103,10 @@ The device has two address lines allowing for up to four I2C addresses.
 
 |  A0  |  A1  |  Address  |
 |:----:|:----:|:---------:|
-|   0  |   0  |    0x70   |
-|   1  |   0  |    0x71   |
-|   0  |   1  |    0x72   |
-|   1  |   1  |    0x73   |
+|   0  |   0  |    0x74   |
+|   1  |   0  |    0x75   |
+|   0  |   1  |    0x76   |
+|   1  |   1  |    0x77   |
 
 
 ### I2C multiplexing

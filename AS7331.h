@@ -18,7 +18,7 @@
 #define AS7331_LIB_VERSION         (F("0.1.0"))
 
 #ifndef AS7331_DEFAULT_ADDRESS
-#define AS7331_DEFAULT_ADDRESS     0x2A
+#define AS7331_DEFAULT_ADDRESS     0x74
 #endif
 
 //  ERROR CODES
@@ -97,6 +97,7 @@ public:
   //  STANDBY
   void     setStandByOn();
   void     setStandByOff();
+  uint8_t  getStandByMode();  //  1 == ON, 0 == OFF TODO DOC
 
 
   //  GAIN & TIMING, REGISTER 0x06 CREG1
@@ -146,7 +147,10 @@ public:
   //  READ FUNCTION
   //
   //       STATUS
-  uint8_t  readStatus();
+  //       OSR + status in MEASUREMENT MODE (page 59)
+  //       OSR in CONFIGURATION MODE
+  uint8_t  readOSR();
+  uint16_t readStatus();
   bool     conversionReady();
   //       READ
   //       returns in microWatts / cm2
@@ -182,6 +186,11 @@ public:
   //  bool conversionReady();  //  check status register (other?)
 
 
+  int      _writeRegister8(uint8_t reg, uint8_t value);
+  uint8_t  _readRegister8(uint8_t reg);
+  uint16_t _readRegister16(uint8_t reg);
+
+
 private:
   uint8_t  _address = 0x2A;
   TwoWire* _wire;
@@ -195,9 +204,7 @@ private:
   void     _adjustGainTimeFactor();
   float    _GainTimeFactor =  1;
 
-  int      _writeRegister8(uint8_t reg, uint8_t value);
-  uint8_t  _readRegister8(uint8_t reg);
-  uint16_t _readRegister16(uint8_t reg);
+
 };
 
 

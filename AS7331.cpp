@@ -46,7 +46,7 @@ AS7331::AS7331(uint8_t address, TwoWire *wire)
   //  default values at startup
   _error    = AS7331_OK;
   _mode     = AS7331_MODE_MANUAL;
-  _gain     = AS7331_GAIN_2x;
+  _gain     = AS7331_GAIN_16x;
   _convTime = AS7331_CONV_064;
 }
 
@@ -109,15 +109,21 @@ uint8_t AS7331::getMode()
 void AS7331::setStandByOn()
 {
   uint8_t value = _readRegister8(AS7331_REG_CREG3);
-  value |= 0x10;
+  value &= ~0x10;
   _writeRegister8(AS7331_REG_CREG3, value);
 }
 
 void AS7331::setStandByOff()
 {
   uint8_t value = _readRegister8(AS7331_REG_CREG3);
-  value &= ~0x10;
+  value |= 0x10;
   _writeRegister8(AS7331_REG_CREG3, value);
+}
+
+uint8_t AS7331::getStandByMode()
+{
+  uint8_t value = _readRegister8(AS7331_REG_CREG3);
+  return (value & 0x10) > 0;
 }
 
 
@@ -130,10 +136,8 @@ bool AS7331::setGain(uint8_t gain)
   if (gain > 11) return false;
   _gain = gain;
   _adjustGainTimeFactor();
-  //  write to register
-  uint8_t value = _readRegister8(AS7331_REG_CREG1);
-  value &= 0x0F;
-  value |= (_gain << 4);
+  //  write gain and conversion time to register
+  uint8_t value = (_gain << 4) | _convTime;
   _writeRegister8(AS7331_REG_CREG1, value);
   return true;
 }
@@ -153,10 +157,8 @@ bool AS7331::setConversionTime(uint8_t convTime)
   if (_convTime == 15) _convTime = 0;
 
   _adjustGainTimeFactor();
-  //  write to register
-  uint8_t value = _readRegister8(AS7331_REG_CREG1);
-  value &= 0xF0;
-  value |= (convTime << 4);
+  //  write gain and conversion time to register
+  uint8_t value = (_gain << 4) | _convTime;
   _writeRegister8(AS7331_REG_CREG1, value);
   return true;
 }
@@ -193,33 +195,35 @@ void AS7331::stopMeasurement()
 
 void AS7331::startMeasurement()
 {
-  uint8_t value = _readRegister8(AS7331_REG_OSR);
-  value |= 0x80;
-  _writeRegister8(AS7331_REG_OSR, value);
+  // uint8_t value = _readRegister8(AS7331_REG_OSR);
+  // value |= 0x80;
+  _writeRegister8(AS7331_REG_OSR, 0x83);
 }
 
 void AS7331::powerDown()
-{
-  uint8_t value = _readRegister8(AS7331_REG_OSR);
-  value &= ~0x40;
-  _writeRegister8(AS7331_REG_OSR, value);
-}
-
-void AS7331::powerUp()
 {
   uint8_t value = _readRegister8(AS7331_REG_OSR);
   value |= 0x40;
   _writeRegister8(AS7331_REG_OSR, value);
 }
 
+void AS7331::powerUp()
+{
+  uint8_t value = _readRegister8(AS7331_REG_OSR);
+  value &= ~0x40;
+  _writeRegister8(AS7331_REG_OSR, value);
+}
+
 void AS7331::softwareReset()
 {
   _writeRegister8(AS7331_REG_OSR, 0x0A);
+  delay(2);
   //  reset internals to defaults
   _error    = AS7331_OK;
   _mode     = AS7331_MODE_MANUAL;
   _gain     = AS7331_GAIN_2x;
   _convTime = AS7331_CONV_064;
+  _adjustGainTimeFactor();
 }
 
 void AS7331::setConfigurationMode()
@@ -284,16 +288,24 @@ uint8_t AS7331::getClockFrequency()
 //
 //  STATUS
 //
-uint8_t AS7331::readStatus()
+uint8_t AS7331::readOSR()
 {
-  uint8_t value = _readRegister8(AS7331_REG_STATUS);
+  uint8_t value = _readRegister8(AS7331_REG_OSR);
+  return value;
+}
+
+uint16_t AS7331::readStatus()
+{
+  //  first byte == OSR (page 59)
+  uint16_t value = _readRegister16(AS7331_REG_STATUS);
   return value;
 }
 
 bool AS7331::conversionReady()
 {
-  uint8_t value = _readRegister8(AS7331_REG_STATUS);
-  return value & 0x04;
+  uint16_t value = _readRegister16(AS7331_REG_STATUS);
+  return value & 0xFF;
+  //  return value & 0x04;
 }
 
 
@@ -308,10 +320,8 @@ bool AS7331::conversionReady()
 - calc the timing factor
 UVA = raw16bit
 
-
-
-
 */
+
 //
 float AS7331::getUVA()
 {
@@ -346,8 +356,8 @@ float AS7331::getCelsius()
   //  datasheet 7.7
   //  validity / resolution depends on timing and gain.
   uint16_t raw = _readRegister16(AS7331_REG_TEMP);
-  float Celcius = (raw * 0.05) - 66.9;
-  return Celcius;
+  float Celsius = (raw * 0.05) - 66.9;
+  return Celsius;
 }
 
 
@@ -373,6 +383,7 @@ void AS7331::_adjustGainTimeFactor()
 {
   _GainTimeFactor = pow(0.5, (11 - _gain) + _convTime);
   //  ref: _GainTimeFactor = pow(0.5, (11 - _gain)) * pow(0.5, _convTime);
+  //  Serial.println(_GainTimeFactor, 8);
 }
 
 int AS7331::_writeRegister8(uint8_t reg, uint8_t value)
@@ -388,15 +399,15 @@ uint8_t AS7331::_readRegister8(uint8_t reg)
 {
   _wire->beginTransmission(_address);
   _wire->write(reg);
-  _error = _wire->endTransmission();
+  _error = _wire->endTransmission(false);
   if (_error != 0)
   {
-    return 0;
+    return 0xFF;
   }
   if (_wire->requestFrom((uint8_t)_address, (uint8_t)1) != 1)
   {
     _error = AS7331_REQUEST_ERROR;
-    return 0;
+    return 0xFF;
   }
   uint8_t value = _wire->read();
   return value;
@@ -406,7 +417,7 @@ uint16_t AS7331::_readRegister16(uint8_t reg)
 {
   _wire->beginTransmission(_address);
   _wire->write(reg);
-  _error = _wire->endTransmission();
+  _error = _wire->endTransmission(false);
   if (_error != 0)
   {
     return 0;
