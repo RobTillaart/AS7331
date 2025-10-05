@@ -124,7 +124,6 @@ unittest(test_constructor_fail)
 
   //  failing address
   assertFalse(UV.begin());
-  assertEqual(UV.begin());
 }
 
 
@@ -132,7 +131,7 @@ unittest(test_constructor_ok)
 {
   AS7331 UV(0x74);
   //  address OK
-  assertEqual(0x74UV.getAddress());
+  assertEqual(0x74, UV.getAddress());
 }
 
 //  Need mock up to test.
