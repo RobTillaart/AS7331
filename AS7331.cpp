@@ -267,6 +267,8 @@ void AS7331::setRDYPushPull()
 //
 //  CLOCK FREQUENCY
 //
+//  Figure 33 Page 39
+//
 bool AS7331::setClockFrequency(uint8_t CCLK)
 {
   if (CCLK > 0x03) return false;
@@ -325,31 +327,32 @@ bool AS7331::conversionReady()
 //
 float AS7331::getUVA_uW()
 {
-  uint16_t raw = _readRegister16(AS7331_REG_MRES1);
+  //  Page 32
   //  note: in table LSB_UVA = 1000/1024 * FSR_UVA, sort of.
   //  FSR = Full Scale Range
-  float FSR_UVA = 348160.0f;
   //  LSB = value per bit
-  float LSB_UVA = FSR_UVA * _GainTimeFactor;
-  float microWatt = raw * LSB_UVA;
+  //  const float FSR_UVA = 348160.0f;
+  const float LSB_UVA = 340000.0f;
+  uint16_t raw = _readRegister16(AS7331_REG_MRES1);
+  float microWatt = raw * LSB_UVA * _GainTimeFactor;
   return microWatt;
 }
 
 float AS7331::getUVB_uW()
 {
+  //  const float FSR_UVB = 387072.0f;
+  const float LSB_UVB = 378000.0f;
   uint16_t raw = _readRegister16(AS7331_REG_MRES2);
-  float FSR_UVB = 387072.0f;
-  float LSB_UVB = FSR_UVB * _GainTimeFactor;
-  float microWatt = raw * LSB_UVB;
+  float microWatt = raw * LSB_UVB * _GainTimeFactor;
   return microWatt;
 }
 
 float AS7331::getUVC_uW()
 {
+  //  const float FSR_UVC = 169984.0f;
+  const float LSB_UVC = 166000.0f;
   uint16_t raw = _readRegister16(AS7331_REG_MRES3);
-  float FSR_UVC = 169984.0f;
-  float LSB_UVC = FSR_UVC * _GainTimeFactor;
-  float microWatt = raw * LSB_UVC;
+  float microWatt = raw * LSB_UVC * _GainTimeFactor;
   return microWatt;
 }
 
@@ -363,7 +366,6 @@ float AS7331::getCelsius()
 }
 
 
-
 /////////////////////////////////////////////
 //
 //  DEBUG
@@ -374,6 +376,60 @@ int AS7331::getLastError()
   _error = 0;
   return e;
 }
+
+
+///////////////////////////////////////////////////
+//
+//  FUTURE - CREG2
+//
+/*
+TODO
+void AS7331::enableTime();
+void AS7331::disableTime();
+bool AS7331::isEnabledTime();
+
+void AS7331::enableDivider();
+void AS7331::disableDivider();
+bool AS7331::isEnabledDivider();
+
+void AS7331::setDivider(uint8_t div);
+uint8_t AS7331::getDivider();
+*/
+
+///////////////////////////////////////////////////
+//
+//  FUTURE - BREAKTIME
+//
+void AS7331::setBreakTime(uint8_t breakTime)
+{
+  _writeRegister8(AS7331_REG_BREAK, breakTime);
+}
+
+uint8_t AS7331::getBreakTime()
+{
+  return _readRegister8(AS7331_REG_BREAK);
+}
+
+///////////////////////////////////////////////////
+//
+//  FUTURE - EDGES
+//
+void AS7331::setEdges(uint8_t edges)
+{
+  _writeRegister8(AS7331_REG_EDGES, edges);
+}
+
+uint8_t AS7331::getEdges()
+{
+  return _readRegister8(AS7331_REG_EDGES);
+}
+
+///////////////////////////////////////////////////
+//
+//  FUTURE - OPTIONS, REGISTER 0x0B OPTREG
+//
+//  TODO
+
 
 
 ///////////////////////////////////////////////

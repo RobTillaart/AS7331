@@ -183,29 +183,53 @@ public:
   float    getUVB_Wm2() { return getUVA_uW() * 0.01; };
   float    getUVC_Wm2() { return getUVA_uW() * 0.01; };
 
+
   //       DEBUG
   int      getLastError();
 
 
   ///////////////////////////////////////////////////
   //
-  //  FUTURE TODO CONT, SYNS and SYND mode
-  //         next release, possibly 0.3.0
+  //  FUTURE
+  //  TODO SYNS and SYND mode
+  //  to investigate some next release
+  //  not tested, use with care.
+  //  TODO documentation
+
+
+  //       TODO REGISTER 0x07 CREG2
+  //       for SYNS / SYND control
+  //       EN_TM (6), EN_DIV(3), DIV(2:0)
+  //  void     enableTime();
+  //  void     disableTime();
+  //  bool     isEnabledTime();
+  //  void     enableDivider();
+  //  void     disableDivider();
+  //  bool     isEnabledDivider();
+  //  void     setDivider(uint8_t div);
+  //  uint8_t  getDivider();
+
+
+  //       BREAK-TIME - REGISTER 0x09 BREAK
+  //       step size == 8 us, 0..255 ==> 0..2048 usec.
   //
-  //  REGISTER 0x07 CREG2
-  //  for synS / synD control
-  //  EN_TM (6), EN_DIV(3), DIV(2:0)
+  //       to be used to set the time needed to fetch the data
+  //       over I2C, so I2C does not disturb measurements.
+  void     setBreakTime(uint8_t breakTime);
+  uint8_t  getBreakTime();
+  //  void setBreakTimeMillis(uint32_t breakTime);  do we need such a thing.
+  //  uint32_t getBreakTimeMillis();  do we need such a thing.
+  //  risk is that it shows more accuracy than exists.
 
-  //  BREAK time, REGISTER 0x09 BREAK
-  //  for CONT, SYNS and SYND mode
-  //  0..255  getter/setter
 
-  //  EDGES time, REGISTER 0x09 EDGES
-  //  for SYND mode
-  //  1..255  getter/setter
+  //       EDGES - REGISTER 0x09 EDGES
+  //       used in SYND only
+  //       1..255 edges (0 maps to 1)
+  void     setEdges(uint8_t edges);
+  uint8_t  getEdges();
 
-  //  OPTIONS, REGISTER 0x0B OPTREG
-  //  read datasheet, low level I2C - INITT_IDX in bit 0.
+  //       TODO OPTIONS, REGISTER 0x0B OPTREG
+  //       read datasheet, low level I2C - INITT_IDX in bit 0.
 
 
 private:

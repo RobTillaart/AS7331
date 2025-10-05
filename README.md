@@ -239,8 +239,8 @@ function returns false.
 |  Define             |  Value  |  Notes  |
 |:--------------------|:-------:|:--------|
 |  AS7331_GAIN_1x     |   11    |
-|  AS7331_GAIN_2x     |   10    |  default
-|  AS7331_GAIN_4x     |    9    |
+|  AS7331_GAIN_2x     |   10    |  default, not with 8 MHz
+|  AS7331_GAIN_4x     |    9    |  
 |  AS7331_GAIN_8x     |    8    |
 |  AS7331_GAIN_16x    |    7    |
 |  AS7331_GAIN_32x    |    6    |
@@ -250,6 +250,10 @@ function returns false.
 |  AS7331_GAIN_512x   |    2    |
 |  AS7331_GAIN_1024x  |    1    |
 |  AS7331_GAIN_2048x  |    0    |
+
+See also section Internal Clock Frequency below.
+
+Read the datasheet for details (7.4 Transfer function).
 
 
 ### Timing conversion (Tconv)
@@ -286,6 +290,8 @@ The number in the define indicates the milliseconds of the conversion / exposure
 |  AS7331_CONV_8192   |   8192  |   13    |
 |  AS7331_CONV_16384  |  16384  |   14    |
 |  AS7331_CONV_001xx  |      1  |   15    |  1 millisecond (not supported yet).
+
+Read the datasheet for details (7.4 Transfer function).
 
 
 ### DeviceID
@@ -327,27 +333,28 @@ The RDY pin can be configured in two modi: (not tested)
 Read the datasheet for details.
 
 
-### Internal Clock Frequency (not tested)
+### Internal Clock Frequency
 
-Datasheet figure 33, page 38.
+Datasheet figure 33, page 39.
 
 The functions affect the performance and measurement, but the parameter 
-CLOCK is not yet included in the radiation math.
+CLOCK is not yet included in the radiation math. The table below shows which gain values cannot be used. See Figure 33 Page 39 datasheet for details.
 
-The CCLK parameter is 0..3, Note that the maximum gain can only be used
+The CCLK parameter is 0..3, Note that the maximum gain (2048x) can only be used
 when the CCLK == 0, the default. See datasheet page 38 for details.
 
 - **bool setClockFrequency(uint8_t CCLK = 0)** set 0..3.
 - **uint8_t getClockFrequency()**
 
-|  define            |  value  |  Freq (MHz)  |  Notes  |
-|:-------------------|:-------:|:------------:|:--------|
-|  AS7331_CCLK_1024  |    0    |     1.024    |  default
-|  AS7331_CCLK_2048  |    1    |     2.048    |
-|  AS7331_CCLK_4096  |    2    |     4.096    |
-|  AS7331_CCLK_8192  |    3    |     8.192    |
+|  Define            |  CCLK  |  Frequency  |  Notes  |
+|:-------------------|:------:|:-----------:|:--------|
+|  AS7331_CCLK_1024  |    0   |  1.024 MHz  |  default
+|  AS7331_CCLK_2048  |    1   |  2.048 MHz  |  gain value 0 not useable
+|  AS7331_CCLK_4096  |    2   |  4.096 MHz  |  gain value 0,1 not usable
+|  AS7331_CCLK_8192  |    3   |  8.192 MHz  |  gain value 0,1,2,4,6,8,10 not usable
 
-Read the datasheet for details.
+
+Read the datasheet for details (7.4 Transfer function).
 
 
 ### Read measurements
@@ -399,9 +406,10 @@ Only NDATA is tested / used yet as it is the most important one (imho).
 
 TODO: Not supported yet, investigate.
 
-Used for external trigger of start/stop measurement 
+Used for external trigger of start/stop measurement.
 
-SYNS / SYND modi.
+- SYNS Mode: synchronization of start via the control signal at pin SYN.
+- SYND Mode: synchronization of start and stop of measuring cycles via control signal at pin SYN.
 
 
 ### Debug
@@ -414,8 +422,7 @@ SYNS / SYND modi.
 #### Must
 
 - improve documentation
-- implement CLOCK math
-- check math and calibration.
+- check calibration.
 
 #### Should
 
@@ -423,7 +430,7 @@ SYNS / SYND modi.
 - fix TODO's in code and documentation
 - check API complete
   - add + test SYNS mode
-  - add + test SYND mode
+  - add + test SYND mode (uses external timing, other math needed)
   - missing registers?
   - class per MODE?
 - investigate adjustGainTimeFactor(), must it include CCLK factor?
