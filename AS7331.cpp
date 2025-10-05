@@ -50,7 +50,6 @@ AS7331::AS7331(uint8_t address, TwoWire *wire)
   _convTime = AS7331_CONV_064;
 }
 
-
 bool AS7331::begin()
 {
   //  reset variables
@@ -67,17 +66,27 @@ bool AS7331::begin()
   return true;
 }
 
-
 bool AS7331::isConnected()
 {
   _wire->beginTransmission(_address);
   return (_wire->endTransmission() == 0);
 }
 
-
 uint8_t AS7331::getAddress()
 {
   return _address;
+}
+
+void AS7331::softwareReset()
+{
+  _writeRegister8(AS7331_REG_OSR, 0x0A);
+  delay(2);
+  //  reset internals to defaults
+  _error    = AS7331_OK;
+  _mode     = AS7331_MODE_MANUAL;
+  _gain     = AS7331_GAIN_2x;
+  _convTime = AS7331_CONV_064;
+  _adjustGainTimeFactor();
 }
 
 
@@ -215,18 +224,6 @@ void AS7331::powerUp()
   uint8_t value = _readRegister8(AS7331_REG_OSR);
   value &= ~0x40;
   _writeRegister8(AS7331_REG_OSR, value);
-}
-
-void AS7331::softwareReset()
-{
-  _writeRegister8(AS7331_REG_OSR, 0x0A);
-  delay(2);
-  //  reset internals to defaults
-  _error    = AS7331_OK;
-  _mode     = AS7331_MODE_MANUAL;
-  _gain     = AS7331_GAIN_2x;
-  _convTime = AS7331_CONV_064;
-  _adjustGainTimeFactor();
 }
 
 void AS7331::setConfigurationMode()

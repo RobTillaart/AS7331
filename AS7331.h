@@ -15,78 +15,93 @@
 #include "Wire.h"
 
 
-#define AS7331_LIB_VERSION         (F("0.2.0"))
+#define AS7331_LIB_VERSION          (F("0.2.0"))
 
 #ifndef AS7331_DEFAULT_ADDRESS
-#define AS7331_DEFAULT_ADDRESS     0x74
+#define AS7331_DEFAULT_ADDRESS      0x74
 #endif
 
 //  ERROR CODES
 //  values <> 0 are errors.
-#define AS7331_OK                  0x00
-#define AS7331_CRC_ERROR           0x01
-#define AS7331_NOT_READY           0x10
-#define AS7331_REQUEST_ERROR       0x11
+#define AS7331_OK                   0x00
+#define AS7331_CRC_ERROR            0x01
+#define AS7331_NOT_READY            0x10
+#define AS7331_REQUEST_ERROR        0x11
 
 
 //  MODE OPERANDI
-#define AS7331_MODE_CONTINUOUS     0x00  //  future
-#define AS7331_MODE_MANUAL         0x01  //  (default) 0.1.0 version
-#define AS7331_MODE_SYNS           0x02  //  future
-#define AS7331_MODE_SYND           0x03  //  future
+#define AS7331_MODE_CONTINUOUS      0x00  //  future
+#define AS7331_MODE_MANUAL          0x01  //  (default) 0.1.0 version
+#define AS7331_MODE_SYNS            0x02  //  future
+#define AS7331_MODE_SYND            0x03  //  future
 
 
 //  GAIN OPERANDI
-#define AS7331_GAIN_1x             0x0B
-#define AS7331_GAIN_2x             0x0A
-#define AS7331_GAIN_4x             0x09
-#define AS7331_GAIN_8x             0x08
-#define AS7331_GAIN_16x            0x07
-#define AS7331_GAIN_32x            0x06
-#define AS7331_GAIN_64x            0x05
-#define AS7331_GAIN_128x           0x04
-#define AS7331_GAIN_256x           0x03
-#define AS7331_GAIN_512x           0x02
-#define AS7331_GAIN_1024x          0x01
-#define AS7331_GAIN_2048x          0x00
+#define AS7331_GAIN_1x              0x0B
+#define AS7331_GAIN_2x              0x0A
+#define AS7331_GAIN_4x              0x09
+#define AS7331_GAIN_8x              0x08
+#define AS7331_GAIN_16x             0x07
+#define AS7331_GAIN_32x             0x06
+#define AS7331_GAIN_64x             0x05
+#define AS7331_GAIN_128x            0x04
+#define AS7331_GAIN_256x            0x03
+#define AS7331_GAIN_512x            0x02
+#define AS7331_GAIN_1024x           0x01
+#define AS7331_GAIN_2048x           0x00
 
 
 //  CONVERSION TIME OPERANDI
 //                 _millis
-#define AS7331_CONV_001            0x00
-#define AS7331_CONV_002            0x01
-#define AS7331_CONV_004            0x02
-#define AS7331_CONV_008            0x03
-#define AS7331_CONV_016            0x04
-#define AS7331_CONV_032            0x05
-#define AS7331_CONV_064            0x06
-#define AS7331_CONV_128            0x07
-#define AS7331_CONV_256            0x08
-#define AS7331_CONV_512            0x09
-#define AS7331_CONV_1024           0x0A
-#define AS7331_CONV_2048           0x0B
-#define AS7331_CONV_4096           0x0C
-#define AS7331_CONV_8192           0x0D
-#define AS7331_CONV_16384          0x0E
-#define AS7331_CONV_001xx          0x0F   //  TODO check datasheet
+#define AS7331_CONV_001             0x00
+#define AS7331_CONV_002             0x01
+#define AS7331_CONV_004             0x02
+#define AS7331_CONV_008             0x03
+#define AS7331_CONV_016             0x04
+#define AS7331_CONV_032             0x05
+#define AS7331_CONV_064             0x06
+#define AS7331_CONV_128             0x07
+#define AS7331_CONV_256             0x08
+#define AS7331_CONV_512             0x09
+#define AS7331_CONV_1024            0x0A
+#define AS7331_CONV_2048            0x0B
+#define AS7331_CONV_4096            0x0C
+#define AS7331_CONV_8192            0x0D
+#define AS7331_CONV_16384           0x0E
+#define AS7331_CONV_001xx           0x0F   //  TODO check datasheet
 
 
 //  CLOCK FREQUENCY OPERANDI
 //                  MHz
-#define AS7331_CCLK_1024           0x00
-#define AS7331_CCLK_2048           0x01
-#define AS7331_CCLK_4096           0x02
-#define AS7331_CCLK_8192           0x03
+#define AS7331_CCLK_1024            0x00
+#define AS7331_CCLK_2048            0x01
+#define AS7331_CCLK_4096            0x02
+#define AS7331_CCLK_8192            0x03
+
+
+//  STATUS BIT MASKS
+//  to test against getStatus()
+#define AS7331_STATUS_OUTCONVOF     0x8000
+#define AS7331_STATUS_MRESOF        0x4000
+#define AS7331_STATUS_ADCOF         0x2000
+#define AS7331_STATUS_LDATA         0x1000
+#define AS7331_STATUS_NDATA         0x0800
+#define AS7331_STATUS_NOTREADY      0x0400
+#define AS7331_STATUS_STANDBYSTATE  0x0200
+#define AS7331_STATUS_POWERSTATE    0x0100
 
 
 class AS7331
 {
 public:
+  //
+  //  CONSTRUCTOR
+  //
   AS7331(uint8_t address, TwoWire *wire = &Wire);
-
   bool     begin();  //  uint8_t RDY = 255, uint8_t SYN = 255); TODO
   bool     isConnected();
   uint8_t  getAddress();  //  debug purpose
+  void     softwareReset();
 
   //
   //  CONFIGURATION STATE
@@ -124,7 +139,6 @@ public:
   void     startMeasurement();  //  sets in Measurement mode too.
   void     powerDown();
   void     powerUp();
-  void     softwareReset();
   void     setConfigurationMode();
   void     setMeasurementMode();
 
@@ -149,15 +163,20 @@ public:
   //       OSR + status in MEASUREMENT MODE (page 59)
   //       LOW byte  == OSR (page 59)
   //       HIGH byte == status
-  uint16_t readStatus();
-  //  TO be used in POLLING mode
+  uint8_t  readStatus();
+  //       To be used in POLLING mode
   bool     conversionReady();
 
-  //       READ the actual data
+  //       READ the measurements
   //       returns in microWatts / cm2
-  float    getUVA();
-  float    getUVB();
-  float    getUVC();
+  float    getUVA_uW();
+  float    getUVB_uW();
+  float    getUVC_uW();
+  //       returns in milliWatts / cm2
+  float    getUVA_mW() { return getUVA_uW * 0.001; };
+  float    getUVB_mW() { return getUVA_uW * 0.001; };
+  float    getUVC_mW() { return getUVA_uW * 0.001; };
+  //       returns degrees Celsius (inner temperature.
   float    getCelsius();
 
 
@@ -168,6 +187,7 @@ public:
   ///////////////////////////////////////////////////
   //
   //  FUTURE TODO CONT, SYNS and SYND mode
+  //         next release, possibly 0.3.0
   //
   //  REGISTER 0x07 CREG2
   //  for synS / synD control

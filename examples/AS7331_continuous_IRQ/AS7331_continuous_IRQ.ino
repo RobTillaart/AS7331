@@ -27,14 +27,14 @@ void RDY_IRQ()
 void setup()
 {
   Serial.begin(115200);
-  //  comment header for pltter
+  //  comment header for plotter
   //  Serial.println();
   //  Serial.println(__FILE__);
   //  Serial.print(F("AS7331_LIB_VERSION: "));
   //  Serial.println(AS7331_LIB_VERSION);
   //  Serial.println();
 
-  // READY Interrupt.
+  //  READY Interrupt.
   pinMode(2, INPUT);
   attachInterrupt(digitalPinToInterrupt(IRQ_PIN), RDY_IRQ, RISING);
 
@@ -47,7 +47,7 @@ void setup()
     while (1);
   }
 
-  //  explicit reset
+  //  explicit reset and configuration
   mySensor.softwareReset();
   mySensor.setConfigurationMode();
   mySensor.powerUp();
@@ -69,11 +69,11 @@ void loop()
   {
     AS7331_READY = false;
 
-    Serial.print(mySensor.getUVA());
+    Serial.print(mySensor.getUVA_uW());
     Serial.print("\t");
-    Serial.print(mySensor.getUVB());
+    Serial.print(mySensor.getUVB_uW());
     Serial.print("\t");
-    Serial.print(mySensor.getUVC());
+    Serial.print(mySensor.getUVC_uW());
     Serial.print("\t");
     Serial.print(mySensor.getCelsius());
     Serial.print("\t");

@@ -1,7 +1,7 @@
 //
 //    FILE: AS7331_manual_POLL.ino
 //  AUTHOR: Rob Tillaart
-// PURPOSE: test basic behaviour and performance
+// PURPOSE: test basic behaviour (verbose)
 //     URL: https://github.com/RobTillaart/AS7331
 
 
@@ -91,11 +91,11 @@ void loop()
   if (mySensor.conversionReady())
   {
     Serial.print("UVA:\t");
-    Serial.println(mySensor.getUVA());
+    Serial.println(mySensor.getUVA_uW());
     Serial.print("UVB:\t");
-    Serial.println(mySensor.getUVB());
+    Serial.println(mySensor.getUVB_uW());
     Serial.print("UVC:\t");
-    Serial.println(mySensor.getUVC());
+    Serial.println(mySensor.getUVC_uW());
     Serial.print("TEMP:\t");
     Serial.println(mySensor.getCelsius());
     Serial.print("ERR:\t");

@@ -14,13 +14,18 @@
 Arduino library for the I2C AS7331 UV sensor. UV-A, UV-B, UV-C 
 
 
-## Warning
+## Warnings
 
 **Always take precautions as UV radiation can cause sunburn, eye damage and other severe problems**.
 
 Do not expose yourself to the sun or any other UV source too long.
 
 When working with UV light, natural or artificial (TL LED laser a.o.) use appropriate shielding. Do not look right into UV light sources (e.g. the sun). Do not expose yourself to any UV source too long.
+
+### Datasheet warning:
+
+_Do not apply this product to safety protection devices or emergency stop equipment,
+and any other applications that may cause personal injury due to the product's failure._
 
 
 ## Description
@@ -37,25 +42,24 @@ The AS7331 is a device that measures UV-A, UV-B and UV-C and internal temperatur
 |    UVA    |  λ = 360 nm       |  315 nm – 410 nm  |
 
 The library allows the user to set the **GAIN** from 1 to 2048 and an **exposure time** from 1 millisecond to 16384 milliseconds (16+ seconds).
+The sensor can be used in a MANUAL or CONTINUOUS mode and has a RDY pin that can be used
+for an interrupt to indicate conversion is ready. Polling mode is also supported.
 
-The device has more options to configure but these are not implemented yet.
-
-
+The device has more options to configure but these are not all implemented / tested yet.
 Check datasheet for details about sensitivity etc.
 
 Feedback as always is welcome.
+
+Note: The library is not verified against a calibrated UV source, so use with care. 
+
+Datasheet used: v4-00, 2023-Mar-24.
 
 
 ### Breaking change 0.2.0
 
 The 0.1.0 version is obsolete as it just did not work. 
 Version 0.2.0 has been verified to work in MANUAL and CONTINUOUS mode.
-
-
-### Datasheet warning
-
-_Do not apply this product to safety protection devices or emergency stop equipment,
-and any other applications that may cause personal injury due to the product's failure._
+Examples have been added to show the operation of the library.
 
 
 ## Angle sensitivity
@@ -76,9 +80,11 @@ Via emoji tab: WIN .  => Ω tab => search for λ)
 UV related
 
 - https://en.wikipedia.org/wiki/Ultraviolet
-- https://github.com/RobTillaart/AnalogUVSensor
-- https://github.com/RobTillaart/LTR390_DFR
-- https://github.com/RobTillaart/LTR390_RT
+- https://en.wikipedia.org/wiki/Ultraviolet_index
+- https://github.com/RobTillaart/AnalogUVSensor 
+- https://github.com/RobTillaart/AS7331 - profi UVA, UVB, UVC sensor.
+- https://github.com/RobTillaart/LTR390_DFR  (DF Robotics variant)
+- https://github.com/RobTillaart/LTR390_RT   (native LTR390)
 - https://github.com/RobTillaart/ML8511
 
 Other
@@ -87,11 +93,13 @@ Other
 - https://github.com/RobTillaart/Temperature - conversions.
 
 
-### Tested (not yet)
+### Tested
 
-This library is NOT tested with hardware yet (will be ordered soon).
+This library is partially tested with hardware Arduino UNO R3.
+As there is no board specific code, it is expected to work on other boards too.
+Examples work but not all functions of the library are verified (or calibrated).
 
-TODO: Arduino UNO / ESP32 (there is no specific code).
+As said before, feedback is welcome.
 
 https://www.tinytronics.nl/nl/sensoren/optisch/licht-en-kleur/as7331-uv-lichtsensor-module
 
@@ -162,6 +170,7 @@ too if they are behind the multiplexer.
 Returns true if the device address can be found on I2C bus.
 - **bool isConnected()** Returns true if the device address can be found on I2C bus.
 - **uint8_t getAddress()** Returns the device address set in the constructor.
+- **void softwareReset()** reset to initial state.
 
 
 ### Mode
@@ -179,15 +188,21 @@ Note: these functions only work in CONFIGURATION MODE.
 |  AS7331_MODE_SYND        |   0x03  |  not supported / tested yet
 
 
-### Standby
-
-Note: these functions only work in CONFIGURATION MODE.
+### Standby and PowerDown
 
 For temporary saving of energy one can put the device in a standby mode.
+Standby works in MEASUREMENT MODE only.
+
 Read the datasheet for the details.
 
 - **void setStandByOn()** idem.
 - **void setStandByOff()** idem.
+
+Maximum saving of energy can be reached with powerDown.
+These power functions works in both CONFIGURATION and MEASUREMENT MODE
+
+- **void powerDown()** idem.
+- **void powerUp()** idem.
 
 
 ### Gain
@@ -232,26 +247,26 @@ The difference need to be investigated.
 if the value > 15 the function returns false.
 - **uint8_t getConversionTime()** returns set value.
 
-The number in the define indicates the milliseconds.
+The number in the define indicates the milliseconds of the conversion / exposure.
 
-|  define             |  value  |  Notes  |
-|:--------------------|:-------:|:--------|
-|  AS7331_CONV_001    |    0    |  default
-|  AS7331_CONV_002    |    1    |
-|  AS7331_CONV_004    |    2    |
-|  AS7331_CONV_008    |    3    |
-|  AS7331_CONV_016    |    4    |
-|  AS7331_CONV_032    |    5    |
-|  AS7331_CONV_064    |    6    |
-|  AS7331_CONV_128    |    7    |
-|  AS7331_CONV_256    |    8    |
-|  AS7331_CONV_512    |    9    |
-|  AS7331_CONV_1024   |   10    |
-|  AS7331_CONV_2048   |   11    |
-|  AS7331_CONV_4096   |   12    |
-|  AS7331_CONV_8192   |   13    |
-|  AS7331_CONV_16384  |   14    |
-|  AS7331_CONV_001xx  |   15    |  1 millisecond (not supported yet).
+|  define             |   msec  |  value  |  Notes  |
+|:--------------------|:-------:|:-------:|:--------|
+|  AS7331_CONV_001    |      1  |    0    |  default
+|  AS7331_CONV_002    |      2  |    1    |
+|  AS7331_CONV_004    |      4  |    2    |
+|  AS7331_CONV_008    |      8  |    3    |
+|  AS7331_CONV_016    |     16  |    4    |
+|  AS7331_CONV_032    |     32  |    5    |
+|  AS7331_CONV_064    |     64  |    6    |
+|  AS7331_CONV_128    |    128  |    7    |
+|  AS7331_CONV_256    |    256  |    8    |
+|  AS7331_CONV_512    |    512  |    9    |
+|  AS7331_CONV_1024   |   1024  |   10    |
+|  AS7331_CONV_2048   |   2048  |   11    |
+|  AS7331_CONV_4096   |   4096  |   12    |
+|  AS7331_CONV_8192   |   8192  |   13    |
+|  AS7331_CONV_16384  |  16384  |   14    |
+|  AS7331_CONV_001xx  |      1  |   15    |  1 millisecond (not supported yet).
 
 
 ### DeviceID
@@ -259,28 +274,35 @@ The number in the define indicates the milliseconds.
 - **uint8_t getDeviceID()** expect to return 0x21.
 
 
-### OSR control
+### MODE control and start
 
-TODO test / elaborate.
-
-- **void stopMeasurement()** idem.
-- **void startMeasurement()** idem.
-- **void powerDown()** idem.
-- **void powerUp()** idem.
-- **void softwareReset()** idem.
-- **void setConfigurationMode()** idem.
-- **void setMeasurementMode()** idem.
+- **void startMeasurement()** starts a new measurement, by explicitly setting 
+the MEASUREMENT MODE and trigger the Start bit.
+- **void stopMeasurement()** idem. (to be tested).
+- **void setConfigurationMode()** forces the mode to CONFIGURATION MODE. 
+Needed to set parameters as these cannot be set in MEASUREMENT MODE.
+- **void setMeasurementMode()** forces the mode to MEASUREMENT MODE.
+Needed to read the last measurements.
 
 
 ### RDY ready pin
 
-Read the datasheet.
+When the AS7331 is converting the READY pin is LOW,
+when the conversion is done the READY pin goes HIGH (short/long?).
+This can be used to trigger an interrupt. See examples.
+
+This end of conversion info is also available in the status register and with:
+- **bool conversionReady()**
+
+The RDY pin can be configured in two modi: (not tested)
 
 - **void setRDYOpenDrain()**
 - **void setRDYPushPull()** default
 
+Read the datasheet for details.
 
-### Internal Clock
+
+### Internal Clock (not tested)
 
 Datasheet figure 33, page 38.
 
@@ -302,50 +324,49 @@ when the CCLK == 0. See datasheet page 38 for details.
 
 Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 
-- **float getUVA()** returns in microWatts / cm2
-- **float getUVB()** returns in microWatts / cm2
-- **float getUVC()** returns in microWatts / cm2
-- **float getCelsius()** returns in Celsius.
+- **float getUVA_uW()** returns in microWatts / cm2
+- **float getUVB_uW()** returns in microWatts / cm2
+- **float getUVC_uW()** returns in microWatts / cm2
+- **float getUVA_mW()** returns in milliWatts / cm2 (wrapper)
+- **float getUVB_mW()** returns in milliWatts / cm2 (wrapper)
+- **float getUVC_mW()** returns in milliWatts / cm2 (wrapper)
+- **float getCelsius()** returns temperature in Celsius.
+
+To get Watt per square meter (W/m2) use: getUVA_uW() x 0.01.
+
+https://en.wikipedia.org/wiki/Ultraviolet_index
 
 
 ### Status
 
 Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 
-- **uint8_t readStatus()** get status back, see table below.
-- **bool conversionReady()** from NOTREADY status field. (or use NDATA?)
+- **uint16_t readStatus()** get status back, see table below.
+- **bool conversionReady()** uses NDATA status field.
 
-Status table, see datasheet for details.
+Status table, see AS7331.h for defines, or datasheet for details.
 
-|  bit  |  name          |  test  |  meaning  |
-|:-----:|:---------------|:------:|:----------|
-|   7   |  OUTCONVOF     |    N   |  overflow 24 bit
-|   6   |  MRESOF        |    N   |  overflow of one of the UV registers
-|   5   |  ADCOF         |    N   |  internal overflow
-|   4   |  LDATA         |    N   |  data overwritten
-|   3   |  NDATA         |    Y   |  new data available - used by conversionReady().
-|   2   |  NOTREADY      |    N   |  0 = ready, 1 = busy, inverted RDY pin.
-|   1   |  STANDBYSTATE  |    N   |  1 = stand by
-|   0   |  POWERSTATE    |    N   |  1 = power down
+|  bit   |  name          |  test  |  meaning  |
+|:------:|:---------------|:------:|:----------|
+|   15   |  OUTCONVOF     |    N   |  overflow 24 bit
+|   14   |  MRESOF        |    N   |  overflow of one of the UV registers
+|   13   |  ADCOF         |    N   |  internal overflow
+|   12   |  LDATA         |    N   |  data overwritten
+|   11   |  NDATA         |    Y   |  new data available - used by conversionReady().
+|   10   |  NOTREADY      |    N   |  0 = ready, 1 = busy, inverted RDY pin.
+|    9   |  STANDBYSTATE  |    N   |  1 = stand by
+|    8   |  POWERSTATE    |    N   |  1 = power down
 
-TODO: only NDATA is tested yet.
-
-
-### RDY pin
-
-When the AS7331 is converting the READY pin is LOW,
-when the conversion is done the READY pin pulses HIGH for a short moment.
-This can be used to trigger an interrupt. See examples.
-
-This end of conversion info is also available in the status register and with:
-- **bool conversionReady()**
+Only NDATA is tested / used yet as it is the most important one (imho).
 
 
 ### SYN pin
 
-TODO, not supported yet.
+TODO: Not supported yet, investigate.
 
 Used for external trigger of start/stop measurement 
+
+SYNS / SYND modi.
 
 
 ### Debug
@@ -357,29 +378,47 @@ Used for external trigger of start/stop measurement
 
 #### Must
 
-- test different configurations (gain Tconv)
 - improve documentation
+- test different configurations (gain Tconv)
 - fix TODO's in code and documentation
+- check math
 
 #### Should
 
-- adjustGainTimeFactor(), must it include CCLK factor?
+- check API complete
+  - add + test SYNS mode
+  - add + test SYND mode
+  - getUVA_Wm2 wrappers?
+  - missing registers?
+  - class per MODE?
+- investigate adjustGainTimeFactor(), must it include CCLK factor?
   (gain is limited with higher clocks, or should gain be leading?).
-- how about 17-24 bits reads
-- reorganize code
-- add + test SYNS mode
-- add + test SYND mode
+- investigate 17-24 bits reads?
 - add examples
   - Wire1 on ESP32
-  - div modi.
+  - Interactive example
+    - G vs g. Gain
+    - E vs e. Exposure time (same as T)
+    - C vs c. Clock freq
+  - Example powerDown./ Up / standby
+  - Example minimal
+  - Example map2Colour
+  - Example printHelpers?
+  - Example array 4 sensors polling 
+- add functions around status bits?
+- add return values functions (error not in right MODE?)
 
 #### Could
 
-- unit test
-- I2C performance (as conversion time can be long not relevant?)
-- implement Lambert law to compensate for incoming angle.
+- reorganize code
+- add unit tests
+- measure I2C performance (as conversion time can be long not relevant?)
 - check handle Tconv == 15 case (last column) correctly.
 - mention VEML6070 ?
+- add UV Index table?
+- write documentation (code) from state machine pov?
+- Split status en OSR? Yes/No?
+  - not clear benefit / usage ?
 
 
 #### Wont
