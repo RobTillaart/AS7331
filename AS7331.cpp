@@ -327,7 +327,9 @@ float AS7331::getUVA_uW()
 {
   uint16_t raw = _readRegister16(AS7331_REG_MRES1);
   //  note: in table LSB_UVA = 1000/1024 * FSR_UVA, sort of.
+  //  FSR = Full Scale Range
   float FSR_UVA = 348160.0f;
+  //  LSB = value per bit
   float LSB_UVA = FSR_UVA * _GainTimeFactor;
   float microWatt = raw * LSB_UVA;
   return microWatt;

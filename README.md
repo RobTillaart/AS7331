@@ -300,18 +300,23 @@ Can be used to test reading from device (debug).
 the MEASUREMENT MODE and trigger the Start bit.
 - **void stopMeasurement()** idem. (to be tested).
 - **void setConfigurationMode()** forces the mode to CONFIGURATION MODE. 
-Needed to set parameters as these cannot be set in MEASUREMENT MODE.
+Needed to set parameters like gain and conversion time as these cannot be 
+set in MEASUREMENT MODE.
 - **void setMeasurementMode()** forces the mode to MEASUREMENT MODE.
-Needed to read the last measurements.
+Needed to make and read the measurements.
+- **uint8_t readOSR()** read the OSR register (CONFIGURATION MODE) to see bits.
+(mostly for debugging).
 
 
 ### RDY ready pin
 
-When the AS7331 is converting the READY pin is LOW,
+When the AS7331 is converting the **READY** pin is LOW,
 when the conversion is done the READY pin goes HIGH (short/long?).
-This can be used to trigger an interrupt. See examples.
+This can be used to trigger an interrupt (RISING). 
+See e.g. the **AS7331_continuous_IRQ.ino** example.
 
-This end of conversion info is also available in the status register and with:
+This end of conversion info is also available in the status register 
+in the NDATA (New DATA) field, and can be checked with:
 - **bool conversionReady()**
 
 The RDY pin can be configured in two modi: (not tested)
@@ -322,15 +327,15 @@ The RDY pin can be configured in two modi: (not tested)
 Read the datasheet for details.
 
 
-### Internal Clock (not tested)
+### Internal Clock Frequency (not tested)
 
 Datasheet figure 33, page 38.
 
-The functions affect the performance, but the CLOCK is not yet 
-included in the radiation math.
+The functions affect the performance and measurement, but the parameter 
+CLOCK is not yet included in the radiation math.
 
-The CCLK parameter is 0..3, The maximum gain can only be used
-when the CCLK == 0. See datasheet page 38 for details.
+The CCLK parameter is 0..3, Note that the maximum gain can only be used
+when the CCLK == 0, the default. See datasheet page 38 for details.
 
 - **bool setClockFrequency(uint8_t CCLK = 0)** set 0..3.
 - **uint8_t getClockFrequency()**
@@ -342,8 +347,10 @@ when the CCLK == 0. See datasheet page 38 for details.
 |  AS7331_CCLK_4096  |    2    |     4.096    |
 |  AS7331_CCLK_8192  |    3    |     8.192    |
 
+Read the datasheet for details.
 
-### Read
+
+### Read measurements
 
 Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 
@@ -351,6 +358,7 @@ Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 - **float getUVB_uW()** returns in microWatts / cm2
 - **float getUVC_uW()** returns in microWatts / cm2
 - **float getCelsius()** returns temperature in Celsius.
+
 
 #### Convenience wrappers
 
@@ -366,7 +374,7 @@ https://en.wikipedia.org/wiki/Ultraviolet_index
 
 ### Status
 
-Note: these functions only work in MEASUREMENT MODE. (8.2.9)
+Note: these status functions only work in MEASUREMENT MODE. (8.2.9)
 
 - **uint16_t readStatus()** get status back, see table below.
 - **bool conversionReady()** uses NDATA status field.
