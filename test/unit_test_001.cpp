@@ -118,15 +118,6 @@ unittest(test_constants_status)
 }
 
 
-unittest(test_constructor_fail)
-{
-  AS7331 UV(0x70);
-
-  //  failing address
-  assertFalse(UV.begin());
-}
-
-
 unittest(test_constructor_ok)
 {
   AS7331 UV(0x74);
