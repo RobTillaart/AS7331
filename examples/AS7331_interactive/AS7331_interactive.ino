@@ -4,7 +4,7 @@
 // PURPOSE: test basic behaviour (verbose)
 //     URL: https://github.com/RobTillaart/AS7331
 //
-//  Not fully tested yet, 
+//  Not fully tested yet,
 //  maybe need an I2C LCD display to show parameters + mode
 //  or a VT100 terminal... if time permits...
 
@@ -59,8 +59,6 @@ void loop()
     Serial.print("ERR:\t");
     Serial.println(mySensor.getLastError());
     Serial.println();
-    //  start new measurement.
-    mySensor.startMeasurement();
   }
 
   //  other things.
@@ -123,25 +121,44 @@ void processSerial()
       mySensor.setClockFrequency(clockFreq);
       mySensor.setMeasurementMode();
       break;
+    case 'M' :
+      mySensor.startMeasurement();
+      break;
+    case 'I' :
+      Serial.print(gain);
+      Serial.print('\t');
+      Serial.print(convTime);
+      Serial.print('\t');
+      Serial.print(clockFreq);
+      Serial.print('\n');
+      break;
     case 'H' :
-      Serial.println("COMMANDS\n--------");
-      Serial.println("R = Reset");
-      Serial.println("T = Time incr");
-      Serial.println("t = Time decr");
-      Serial.println("G = Gain incr");
-      Serial.println("g = Gain decr");
-      Serial.println("S = Standby on");
-      Serial.println("s = Standby off");
-      Serial.println("P = Power on");
-      Serial.println("p = Power down");
-      Serial.println("C = Clock incr");
-      Serial.println("c = Clock decr");
-      Serial.println("H = Help");
-      Serial.println();
+      help();
       break;
     default:
       break;
   }
 }
+
+
+void help()
+{
+  Serial.println("COMMANDS\n--------");
+  Serial.println("R = Reset");
+  Serial.println("T = Time incr");
+  Serial.println("t = Time decr");
+  Serial.println("G = Gain incr");
+  Serial.println("g = Gain decr");
+  Serial.println("S = Standby on");
+  Serial.println("s = Standby off");
+  Serial.println("P = Power on");
+  Serial.println("p = Power down");
+  Serial.println("C = Clock incr");
+  Serial.println("c = Clock decr");
+  Serial.println("M = Measure");
+  Serial.println("H = Help");
+  Serial.println();
+}
+
 
 //  -- END OF FILE --

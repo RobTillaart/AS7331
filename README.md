@@ -32,21 +32,24 @@ and any other applications that may cause personal injury due to the product's f
 
 **Experimental**
 
-This Arduino library is to use the AS7331 UV sensor.
+This Arduino library is for the I2C AS7331 UV sensor.
 The AS7331 is a device that measures UV-A, UV-B and UV-C and internal temperature (Celsius) simultaneously.
 
-|  Channel  |  peak wavelength  |  Range            |
+|  Channel  |  Peak wavelength  |  Range            |
 |:---------:|:-----------------:|:------------------|
 |    UVC    |  λ = 260 nm       |  240 nm – 280 nm  |
 |    UVB    |  λ = 300 nm       |  280 nm – 315 nm  |
 |    UVA    |  λ = 360 nm       |  315 nm – 410 nm  |
 
-The library allows the user to set the **GAIN** from 1 to 2048 and an **exposure time** from 1 millisecond to 16384 milliseconds (16+ seconds).
-The sensor can be used in a MANUAL or CONTINUOUS mode and has a RDY pin that can be used
+See datasheet for detailed sensitivity graphs.
+
+The library allows the user to set the **gain** from 1 to 2048 and a **conversion time** 
+from 1 millisecond up to 16384 milliseconds (16+ seconds).
+The sensor can be used in a **MANUAL** or **CONTINUOUS** mode and has a **RDY** pin that can be used
 for an interrupt to indicate conversion is ready. Polling mode is also supported.
+In MANUAL mode one needs to restart a measurement manually.
 
 The device has more options to configure but these are not all implemented / tested yet.
-Check datasheet for details about sensitivity etc.
 
 Feedback as always is welcome.
 
@@ -62,9 +65,9 @@ Version 0.2.0 has been verified to work in MANUAL and CONTINUOUS mode.
 Examples have been added to show the operation of the library.
 
 
-## Angle sensitivity
+### Angle sensitivity
 
-Angle of incidence is +-10 degrees, so Cosine law not needed(?).
+Angle of incidence is +-10 degrees, so Cosine law is not really needed (imho).
 Search for Lambert’s Cosine Law on Wikipedia for details.
 
 
@@ -138,6 +141,9 @@ on one I2C bus.
 |   0  |   1  |    0x76   |
 |   1  |   1  |    0x77   |
 
+The sensor does not appreciate runtime changing of the address pins.
+So this trick cannot be used to "multiplex".
+
 
 ### I2C multiplexing
 
@@ -166,8 +172,11 @@ too if they are behind the multiplexer.
 ### Constructor
 
 - **AS7331(uint8_t address, TwoWire \*wire = &Wire)** set the I2C address to use and optional select an I2C bus.
-- **bool begin()** resets the device to the default configuration, **AS7331_MODE_MANUAL**, **AS7331_GAIN_2x** and **AS7331_CONV_064**.
+- **bool begin()** resets the device to the default configuration.
 Returns true if the device address can be found on I2C bus.
+  - **AS7331_MODE_MANUAL**
+  - **AS7331_GAIN_2x**
+  - **AS7331_CONV_064**
 - **bool isConnected()** Returns true if the device address can be found on I2C bus.
 - **uint8_t getAddress()** Returns the device address set in the constructor.
 - **void softwareReset()** reset to initial state.
@@ -178,7 +187,7 @@ Returns true if the device address can be found on I2C bus.
 Note: these functions only work in CONFIGURATION MODE.
 
 - **void setMode(uint8_t mode = AS7331_MODE_MANUAL)** idem. Manual mode is default.
-- **uint8_t getMode()** returns the set mode.
+- **uint8_t getMode()** returns the set mode from device.
 
 |  Mode                    |  value  |  Notes  |
 |:-------------------------|:-------:|:--------|
@@ -204,30 +213,30 @@ These power functions works in both CONFIGURATION and MEASUREMENT MODE
 - **void powerDown()** idem.
 - **void powerUp()** idem.
 
-table power usage indication, from datasheet page 10.
+Table power usage indication, from datasheet page 10.
 
-|  State              |   usage  |  Notes  |
+|  State              |   Usage  |  Notes  |
 |:--------------------|---------:|:--------|
 |  PowerDown          |    1 uA  |
 |  StandBy            |  970 uA  |
-|  Configuration      |    ?     |  same as Measurement?
+|  Configuration      |    ?     |  same as Measurement ?
 |  Measurement (run)  |    2 mA  |
-|  Measurement (idle) |    ?     |  same as Measurement?
+|  Measurement (idle) |    ?     |  same as Measurement ?
 
 
 ### Gain
 
 Note: these functions only work in CONFIGURATION MODE.
 
-The gain parameter is 0..11, which goes from 2048x .. 1x.
-Note the factors decrease while the values increase.
+The gain parameter is 0..11, which goes from 2048x down to 1x in powers of 2.
+Note the factors decrease while the gain value increases.
 See table below.
   
 - **bool setGain(uint8_t gain)** sets the gain, if value > 11 the
 function returns false.
 - **uint8_t getGain()** returns the set value from device.
 
-|  define             |  value  |  Notes  |
+|  Define             |  Value  |  Notes  |
 |:--------------------|:-------:|:--------|
 |  AS7331_GAIN_1x     |   11    |
 |  AS7331_GAIN_2x     |   10    |  default
@@ -248,18 +257,18 @@ function returns false.
 Note: these functions only work in CONFIGURATION MODE.
 
 The convTime parameter (exposure time) is 0..15, which goes from 1 millisecond
-to 16384 millisecond. See table below.
+up to 16384 millisecond (~16 seconds). See table below.
 
-Note value 15 is 1 millisecond like value 0 and in fact uses value 0 (overruled).
-The difference need to be investigated.
+Note value 15 is 1 millisecond like value 0 and in fact currently uses value 0 (overruled).
+The difference between value 15 and 0 needs to be investigated.
 
-- **void setConversionTime(uint8_t convTime)** set Tconv (table below), 
+- **void setConversionTime(uint8_t convTime)** set conversion time (table below), 
 if the value > 15 the function returns false.
 - **uint8_t getConversionTime()** returns set value.
 
 The number in the define indicates the milliseconds of the conversion / exposure.
 
-|  define             |   msec  |  value  |  Notes  |
+|  Define             |   msec  |  Value  |  Notes  |
 |:--------------------|:-------:|:-------:|:--------|
 |  AS7331_CONV_001    |      1  |    0    |
 |  AS7331_CONV_002    |      2  |    1    |
@@ -282,9 +291,10 @@ The number in the define indicates the milliseconds of the conversion / exposure
 ### DeviceID
 
 - **uint8_t getDeviceID()** expect to return 0x21.
+Can be used to test reading from device (debug).
 
 
-### MODE control and start
+### Mode control and start measurements
 
 - **void startMeasurement()** starts a new measurement, by explicitly setting 
 the MEASUREMENT MODE and trigger the Start bit.
@@ -412,7 +422,7 @@ SYNS / SYND modi.
   (gain is limited with higher clocks, or should gain be leading?).
 - investigate 17-24 bits reads?
 - add functions around status bits?
-- add return values functions (error not in right MODE?)
+- add return values functions (error not in right MODE?) iso void()
 
 #### Could
 

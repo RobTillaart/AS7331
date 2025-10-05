@@ -45,7 +45,6 @@ void setup()
       delay(500);  //  delay so the sensors start a bit at different times.
     }
   }
-
 }
 
 
