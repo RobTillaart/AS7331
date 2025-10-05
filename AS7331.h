@@ -163,7 +163,7 @@ public:
   //       OSR + status in MEASUREMENT MODE (page 59)
   //       LOW byte  == OSR (page 59)
   //       HIGH byte == status
-  uint8_t  readStatus();
+  uint16_t readStatus();
   //       To be used in POLLING mode
   bool     conversionReady();
 
@@ -173,9 +173,9 @@ public:
   float    getUVB_uW();
   float    getUVC_uW();
   //       returns in milliWatts / cm2
-  float    getUVA_mW() { return getUVA_uW * 0.001; };
-  float    getUVB_mW() { return getUVA_uW * 0.001; };
-  float    getUVC_mW() { return getUVA_uW * 0.001; };
+  float    getUVA_mW() { return getUVA_uW() * 0.001; };
+  float    getUVB_mW() { return getUVA_uW() * 0.001; };
+  float    getUVC_mW() { return getUVA_uW() * 0.001; };
   //       returns degrees Celsius (inner temperature.
   float    getCelsius();
 

@@ -315,15 +315,13 @@ bool AS7331::conversionReady()
 //
 //  TODO math 7.4
 /*
-
 - calc the gain factor
 - calc the timing factor
-UVA = raw16bit
-
+- getUVA() = raw16bit?
 */
 
 //
-float AS7331::getUVA()
+float AS7331::getUVA_uW()
 {
   uint16_t raw = _readRegister16(AS7331_REG_MRES1);
   //  note: in table LSB_UVA = 1000/1024 * FSR_UVA, sort of.
@@ -333,7 +331,7 @@ float AS7331::getUVA()
   return microWatt;
 }
 
-float AS7331::getUVB()
+float AS7331::getUVB_uW()
 {
   uint16_t raw = _readRegister16(AS7331_REG_MRES2);
   float FSR_UVB = 387072.0f;
@@ -342,7 +340,7 @@ float AS7331::getUVB()
   return microWatt;
 }
 
-float AS7331::getUVC()
+float AS7331::getUVC_uW()
 {
   uint16_t raw = _readRegister16(AS7331_REG_MRES3);
   float FSR_UVC = 169984.0f;
