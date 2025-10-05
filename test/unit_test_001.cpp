@@ -39,7 +39,7 @@ unittest_teardown()
 }
 
 
-unittest(test_constants_1)
+unittest(test_constants_address)
 {
   assertEqual(0x74, AS7331_DEFAULT_ADDRESS);
 }
@@ -97,7 +97,7 @@ unittest(test_constants_conversion)
   assertEqual(0x0F, AS7331_CONV_001xx);
 }
 
-unittest(test_constants_conversion)
+unittest(test_constants_clockFreq)
 {
   assertEqual(0x00, AS7331_CCLK_1024);
   assertEqual(0x01, AS7331_CCLK_2048);
@@ -105,7 +105,7 @@ unittest(test_constants_conversion)
   assertEqual(0x03, AS7331_CCLK_8192);
 }
 
-unittest(test_constants_conversion)
+unittest(test_constants_status)
 {
   assertEqual(0x8000, AS7331_STATUS_OUTCONVOF   );
   assertEqual(0x4000, AS7331_STATUS_MRESOF      );

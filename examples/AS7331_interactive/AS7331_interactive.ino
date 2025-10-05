@@ -16,7 +16,7 @@ AS7331 mySensor(0x74);
 
 int convTime = 10;  //  AS7331_CONV_1024 (~1 sec)
 int gain = 5;       //  AS7331_GAIN_64x
-int clock = 0;
+int clockFreq = 0;
 
 
 void setup()
@@ -112,15 +112,15 @@ void processSerial()
       mySensor.powerDown();
       break;
     case 'C' :
-      if (clock < 3) clock++;
+      if (clockFreq < 3) clockFreq++;
       mySensor.setConfigurationMode();
-      mySensor.setClockFrequency(clock);
+      mySensor.setClockFrequency(clockFreq);
       mySensor.setMeasurementMode();
       break;
     case 'c' :
-      if (clock > 0) clock--;
+      if (clockFreq > 0) clockFreq--;
       mySensor.setConfigurationMode();
-      mySensor.setClockFrequency(clock);
+      mySensor.setClockFrequency(clockFreq);
       mySensor.setMeasurementMode();
       break;
     case 'H' :
