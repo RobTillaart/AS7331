@@ -172,13 +172,16 @@ public:
   float    getUVA_uW();
   float    getUVB_uW();
   float    getUVC_uW();
+  float    getCelsius();  //  inner temperature.
+  //  wrappers
   //       returns in milliWatts / cm2
   float    getUVA_mW() { return getUVA_uW() * 0.001; };
   float    getUVB_mW() { return getUVA_uW() * 0.001; };
   float    getUVC_mW() { return getUVA_uW() * 0.001; };
-  //       returns degrees Celsius (inner temperature.
-  float    getCelsius();
-
+  //       returns in Watts / m2
+  float    getUVA_Wm2() { return getUVA_uW() * 0.01; };
+  float    getUVB_Wm2() { return getUVA_uW() * 0.01; };
+  float    getUVC_Wm2() { return getUVA_uW() * 0.01; };
 
   //       DEBUG
   int      getLastError();

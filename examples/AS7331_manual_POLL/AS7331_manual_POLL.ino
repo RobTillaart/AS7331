@@ -10,13 +10,6 @@
 
 AS7331 mySensor(0x74);
 
-volatile bool RDY = false;
-
-void RDY_IRQ()
-{
-  RDY = true;
-}
-
 
 void setup()
 {
@@ -26,10 +19,6 @@ void setup()
   Serial.print(F("AS7331_LIB_VERSION: "));
   Serial.println(AS7331_LIB_VERSION);
   Serial.println();
-
-  // READY Interrupt.
-  pinMode(2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(2), RDY_IRQ, RISING);
 
   Wire.begin();
 
@@ -84,7 +73,7 @@ void loop()
 {
   //  alternative, if you need status too
   //  uint16_t status = mySensor.readStatus();
-  //  if (status & 0x0800)
+  //  if (status & AS7331_STATUS_NDATA)
   //  {
   //  }
 

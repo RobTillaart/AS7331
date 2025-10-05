@@ -1,25 +1,14 @@
 //
-//    FILE: AS7331_manual_IRQ.ino
+//    FILE: AS7331_manual_POLL_Wire1.ino
 //  AUTHOR: Rob Tillaart
-// PURPOSE: test basic behaviour
+// PURPOSE: test Wire1 API, e.g. ESP32
 //     URL: https://github.com/RobTillaart/AS7331
-
-//  Connect the Ready Pin to an IRQ Pin e.g. 2
-//  to detect the conversion is ready.
 
 
 #include "AS7331.h"
 
 
-AS7331 mySensor(0x74);
-
-volatile bool AS7331_READY = false;
-const uint8_t IRQ_PIN = 2;
-
-void RDY_IRQ()
-{
-  AS7331_READY = true;
-}
+AS7331 mySensor(0x74, &Wire1);
 
 
 void setup()
@@ -30,10 +19,6 @@ void setup()
   Serial.print(F("AS7331_LIB_VERSION: "));
   Serial.println(AS7331_LIB_VERSION);
   Serial.println();
-
-  //  READY Interrupt.
-  pinMode(2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), RDY_IRQ, RISING);
 
   Wire.begin();
 
@@ -48,8 +33,8 @@ void setup()
   mySensor.softwareReset();
   mySensor.setConfigurationMode();
   mySensor.powerUp();
-  mySensor.setStandByOff();
   mySensor.setMode(AS7331_MODE_MANUAL);
+  mySensor.setStandByOff();
   mySensor.setGain(AS7331_GAIN_256x);
   mySensor.setConversionTime(AS7331_CONV_4096);
 
@@ -59,11 +44,14 @@ void setup()
 
 void loop()
 {
-  if (AS7331_READY == true)
+  //  alternative, if you need status too
+  //  uint16_t status = mySensor.readStatus();
+  //  if (status & 0x0800)
+  //  {
+  //  }
+
+  if (mySensor.conversionReady())
   {
-    AS7331_READY = false;
-    //  Serial.print("STAT:\t");
-    //  Serial.println(mySensor.readStatus(), HEX);
     Serial.print("UVA:\t");
     Serial.println(mySensor.getUVA_uW());
     Serial.print("UVB:\t");
@@ -75,13 +63,11 @@ void loop()
     Serial.print("ERR:\t");
     Serial.println(mySensor.getLastError());
     Serial.println();
-
-    //  start new measurement manually
+    //  start new measurement.
     mySensor.startMeasurement();
   }
 
   //  other things.
-
 }
 
 

@@ -59,6 +59,7 @@ bool AS7331::begin()
     return false;
   }
   softwareReset();
+  powerUp();
   setConfigurationMode();
   setMode(AS7331_MODE_MANUAL);
   setGain(AS7331_GAIN_2x);
@@ -305,6 +306,7 @@ uint16_t AS7331::readStatus()
 bool AS7331::conversionReady()
 {
   uint16_t value = _readRegister16(AS7331_REG_STATUS);
+  if (_error != 0) return false;
   return (value & 0x0800) > 0;
 }
 

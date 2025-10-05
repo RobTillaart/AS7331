@@ -204,12 +204,23 @@ These power functions works in both CONFIGURATION and MEASUREMENT MODE
 - **void powerDown()** idem.
 - **void powerUp()** idem.
 
+table power usage indication, from datasheet page 10.
+
+|  State              |   usage  |  Notes  |
+|:--------------------|---------:|:--------|
+|  PowerDown          |    1 uA  |
+|  StandBy            |  970 uA  |
+|  Configuration      |    ?     |  same as Measurement?
+|  Measurement (run)  |    2 mA  |
+|  Measurement (idle) |    ?     |  same as Measurement?
+
 
 ### Gain
 
 Note: these functions only work in CONFIGURATION MODE.
 
 The gain parameter is 0..11, which goes from 2048x .. 1x.
+Note the factors decrease while the values increase.
 See table below.
   
 - **bool setGain(uint8_t gain)** sets the gain, if value > 11 the
@@ -242,8 +253,7 @@ to 16384 millisecond. See table below.
 Note value 15 is 1 millisecond like value 0 and in fact uses value 0 (overruled).
 The difference need to be investigated.
 
-
-- **void setConversionTime(uint8_t convTime)** set Tconv, 
+- **void setConversionTime(uint8_t convTime)** set Tconv (table below), 
 if the value > 15 the function returns false.
 - **uint8_t getConversionTime()** returns set value.
 
@@ -251,13 +261,13 @@ The number in the define indicates the milliseconds of the conversion / exposure
 
 |  define             |   msec  |  value  |  Notes  |
 |:--------------------|:-------:|:-------:|:--------|
-|  AS7331_CONV_001    |      1  |    0    |  default
+|  AS7331_CONV_001    |      1  |    0    |
 |  AS7331_CONV_002    |      2  |    1    |
 |  AS7331_CONV_004    |      4  |    2    |
 |  AS7331_CONV_008    |      8  |    3    |
 |  AS7331_CONV_016    |     16  |    4    |
 |  AS7331_CONV_032    |     32  |    5    |
-|  AS7331_CONV_064    |     64  |    6    |
+|  AS7331_CONV_064    |     64  |    6    |  default
 |  AS7331_CONV_128    |    128  |    7    |
 |  AS7331_CONV_256    |    256  |    8    |
 |  AS7331_CONV_512    |    512  |    9    |
@@ -306,6 +316,9 @@ Read the datasheet for details.
 
 Datasheet figure 33, page 38.
 
+The functions affect the performance, but the CLOCK is not yet 
+included in the radiation math.
+
 The CCLK parameter is 0..3, The maximum gain can only be used
 when the CCLK == 0. See datasheet page 38 for details.
 
@@ -327,12 +340,16 @@ Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 - **float getUVA_uW()** returns in microWatts / cm2
 - **float getUVB_uW()** returns in microWatts / cm2
 - **float getUVC_uW()** returns in microWatts / cm2
-- **float getUVA_mW()** returns in milliWatts / cm2 (wrapper)
-- **float getUVB_mW()** returns in milliWatts / cm2 (wrapper)
-- **float getUVC_mW()** returns in milliWatts / cm2 (wrapper)
 - **float getCelsius()** returns temperature in Celsius.
 
-To get Watt per square meter (W/m2) use: getUVA_uW() x 0.01.
+#### Convenience wrappers
+
+- **float getUVA_mW()** returns in milliWatts / cm2
+- **float getUVB_mW()** returns in milliWatts / cm2
+- **float getUVC_mW()** returns in milliWatts / cm2
+- **float getUVA_Wm2()** returns Watt / meter2
+- **float getUVB_Wm2()** returns Watt / meter2
+- **float getUVC_Wm2()** returns Watt / meter2
 
 https://en.wikipedia.org/wiki/Ultraviolet_index
 
@@ -379,49 +396,38 @@ SYNS / SYND modi.
 #### Must
 
 - improve documentation
-- test different configurations (gain Tconv)
-- fix TODO's in code and documentation
-- check math
+- implement CLOCK math
+- check math and calibration.
 
 #### Should
 
+- test different configurations (gain Tconv)
+- fix TODO's in code and documentation
 - check API complete
   - add + test SYNS mode
   - add + test SYND mode
-  - getUVA_Wm2 wrappers?
   - missing registers?
   - class per MODE?
 - investigate adjustGainTimeFactor(), must it include CCLK factor?
   (gain is limited with higher clocks, or should gain be leading?).
 - investigate 17-24 bits reads?
-- add examples
-  - Wire1 on ESP32
-  - Interactive example
-    - G vs g. Gain
-    - E vs e. Exposure time (same as T)
-    - C vs c. Clock freq
-  - Example powerDown./ Up / standby
-  - Example minimal
-  - Example map2Colour
-  - Example printHelpers?
-  - Example array 4 sensors polling 
 - add functions around status bits?
 - add return values functions (error not in right MODE?)
 
 #### Could
 
 - reorganize code
-- add unit tests
 - measure I2C performance (as conversion time can be long not relevant?)
 - check handle Tconv == 15 case (last column) correctly.
 - mention VEML6070 ?
-- add UV Index table?
 - write documentation (code) from state machine pov?
 - Split status en OSR? Yes/No?
   - not clear benefit / usage ?
-
+- extend unit tests
 
 #### Wont
+
+- add UV Index table => See Wikipedia.
 
 
 ## Support
