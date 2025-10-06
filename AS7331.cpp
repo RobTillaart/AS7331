@@ -31,14 +31,6 @@ const uint8_t AS7331_REG_OUTCONVL = 0x05;
 const uint8_t AS7331_REG_OUTCONVH = 0x06;
 
 
-//  CONSTANTS FULL SCALE RANGE
-//  datasheet 7.4 transfer function
-const float FSR_UVA = 348160.0f;  //  figure 27, 28
-const float FSR_UVB = 387072.0f;  //  figure 29, 30
-const float FSR_UVC = 169984.0f;  //  figure 31, 32
-
-
-
 AS7331::AS7331(uint8_t address, TwoWire *wire)
 {
   _address  = address;
@@ -317,21 +309,16 @@ bool AS7331::conversionReady()
 //
 //  READ - datasheet chapter 7
 //
-//  TODO math 7.4
-/*
-- calc the gain factor
-- calc the timing factor
-- getUVA() = raw16bit?
-*/
-
+//  Math 7.4
 //
 float AS7331::getUVA_uW()
 {
   //  Page 32
   //  note: in table LSB_UVA = 1000/1024 * FSR_UVA, sort of.
+  //  might be to convert to 'per second'?
   //  FSR = Full Scale Range
-  //  LSB = value per bit
-  //  const float FSR_UVA = 348160.0f;
+  //  LSB = Least Significant Bit = value per bit
+  //  const float FSR_UVA = 348160.0f;  //  figure 27, 28
   const float LSB_UVA = 340000.0f;
   uint16_t raw = _readRegister16(AS7331_REG_MRES1);
   float microWatt = raw * LSB_UVA * _GainTimeFactor;
@@ -340,7 +327,7 @@ float AS7331::getUVA_uW()
 
 float AS7331::getUVB_uW()
 {
-  //  const float FSR_UVB = 387072.0f;
+  //  const float FSR_UVB = 387072.0f;  //  figure 29, 30
   const float LSB_UVB = 378000.0f;
   uint16_t raw = _readRegister16(AS7331_REG_MRES2);
   float microWatt = raw * LSB_UVB * _GainTimeFactor;
@@ -349,7 +336,7 @@ float AS7331::getUVB_uW()
 
 float AS7331::getUVC_uW()
 {
-  //  const float FSR_UVC = 169984.0f;
+  //  const float FSR_UVC = 169984.0f;  //  figure 31, 32
   const float LSB_UVC = 166000.0f;
   uint16_t raw = _readRegister16(AS7331_REG_MRES3);
   float microWatt = raw * LSB_UVC * _GainTimeFactor;
@@ -366,6 +353,21 @@ float AS7331::getCelsius()
 }
 
 
+///////////////////////////////////////////////////
+//
+//  BREAKTIME
+//
+void AS7331::setBreakTime(uint8_t breakTime)
+{
+  _writeRegister8(AS7331_REG_BREAK, breakTime);
+}
+
+uint8_t AS7331::getBreakTime()
+{
+  return _readRegister8(AS7331_REG_BREAK);
+}
+
+
 /////////////////////////////////////////////
 //
 //  DEBUG
@@ -376,6 +378,7 @@ int AS7331::getLastError()
   _error = 0;
   return e;
 }
+
 
 
 ///////////////////////////////////////////////////
@@ -396,32 +399,19 @@ void AS7331::setDivider(uint8_t div);
 uint8_t AS7331::getDivider();
 */
 
-///////////////////////////////////////////////////
-//
-//  FUTURE - BREAKTIME
-//
-void AS7331::setBreakTime(uint8_t breakTime)
-{
-  _writeRegister8(AS7331_REG_BREAK, breakTime);
-}
-
-uint8_t AS7331::getBreakTime()
-{
-  return _readRegister8(AS7331_REG_BREAK);
-}
 
 ///////////////////////////////////////////////////
 //
-//  FUTURE - EDGES
+//  FUTURE - EDGES - synd
 //
-void AS7331::setEdges(uint8_t edges)
-{
-  _writeRegister8(AS7331_REG_EDGES, edges);
-}
+// void AS7331::setEdges(uint8_t edges)
+// {
+  // _writeRegister8(AS7331_REG_EDGES, edges);
+// }
 
-uint8_t AS7331::getEdges()
-{
-  return _readRegister8(AS7331_REG_EDGES);
+// uint8_t AS7331::getEdges()
+// {
+  // return _readRegister8(AS7331_REG_EDGES);
 }
 
 ///////////////////////////////////////////////////

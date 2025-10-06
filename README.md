@@ -49,8 +49,6 @@ The sensor can be used in a **MANUAL** or **CONTINUOUS** mode and has a **RDY** 
 for an interrupt to indicate conversion is ready. Polling mode is also supported.
 In MANUAL mode one needs to restart a measurement manually.
 
-The device has more options to configure but these are not all implemented / tested yet.
-
 Feedback as always is welcome.
 
 Note: The library is not verified against a calibrated UV source, so use with care. 
@@ -58,10 +56,18 @@ Note: The library is not verified against a calibrated UV source, so use with ca
 Datasheet used: v4-00, 2023-Mar-24.
 
 
+#### disclaimer
+
+The device has more options to configure but these are not all implemented and tested 
+in the library (0.2.0) yet. This is especially true for the 24 bit register and the CREG-2 register.
+So not all combinations of gain and timing etc might work as expected. 
+Please share your insights.
+
+
 ### Breaking change 0.2.0
 
 The 0.1.0 version is obsolete as it just did not work. 
-Version 0.2.0 has been verified to work in MANUAL and CONTINUOUS mode.
+Version 0.2.0 has been verified to work in MANUAL, CONTINUOUS and SYNS mode.
 Examples have been added to show the operation of the library.
 
 
@@ -272,24 +278,27 @@ if the value > 15 the function returns false.
 
 The number in the define indicates the milliseconds of the conversion / exposure.
 
-|  Define             |   msec  |  Value  |  Notes  |
-|:--------------------|:-------:|:-------:|:--------|
-|  AS7331_CONV_001    |      1  |    0    |
-|  AS7331_CONV_002    |      2  |    1    |
-|  AS7331_CONV_004    |      4  |    2    |
-|  AS7331_CONV_008    |      8  |    3    |
-|  AS7331_CONV_016    |     16  |    4    |
-|  AS7331_CONV_032    |     32  |    5    |
-|  AS7331_CONV_064    |     64  |    6    |  default
-|  AS7331_CONV_128    |    128  |    7    |
-|  AS7331_CONV_256    |    256  |    8    |
-|  AS7331_CONV_512    |    512  |    9    |
-|  AS7331_CONV_1024   |   1024  |   10    |
-|  AS7331_CONV_2048   |   2048  |   11    |
-|  AS7331_CONV_4096   |   4096  |   12    |
-|  AS7331_CONV_8192   |   8192  |   13    |
-|  AS7331_CONV_16384  |  16384  |   14    |
-|  AS7331_CONV_001xx  |      1  |   15    |  1 millisecond (not supported yet).
+Resolutions above 16 bit need to be investigated how to read them properly.
+
+|  Define             |   msec  |  Value  |  Bits   |  Notes  |
+|:--------------------|:-------:|:-------:|:-------:|:--------|
+|  AS7331_CONV_001    |      1  |    0    |   10    |
+|  AS7331_CONV_002    |      2  |    1    |   11    |
+|  AS7331_CONV_004    |      4  |    2    |   12    |
+|  AS7331_CONV_008    |      8  |    3    |   13    |
+|  AS7331_CONV_016    |     16  |    4    |   14    |
+|  AS7331_CONV_032    |     32  |    5    |   15    |
+|  AS7331_CONV_064    |     64  |    6    |   16    |  default
+|  AS7331_CONV_128    |    128  |    7    |   17    |  Not supported.
+|  AS7331_CONV_256    |    256  |    8    |   18    |  Not supported.
+|  AS7331_CONV_512    |    512  |    9    |   19    |  Not supported.
+|  AS7331_CONV_1024   |   1024  |   10    |   20    |  Not supported.
+|  AS7331_CONV_2048   |   2048  |   11    |   21    |  Not supported.
+|  AS7331_CONV_4096   |   4096  |   12    |   22    |  Not supported.
+|  AS7331_CONV_8192   |   8192  |   13    |   23    |  Not supported.
+|  AS7331_CONV_16384  |  16384  |   14    |   24    |  Not supported.
+|  AS7331_CONV_001xx  |      1  |   15    |   10    |  1 millisecond (not supported yet).
+
 
 Read the datasheet for details (7.4 Transfer function).
 
@@ -379,6 +388,20 @@ Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 https://en.wikipedia.org/wiki/Ultraviolet_index
 
 
+### Break time
+
+The break time is used to set a pause to the next conversion start.
+This is needed to allow to fetch the data over I2C without disturbing
+the actual measurements. 
+This is especially useful in CONTINUOUS and SYNS mode.
+
+The break time is defined in steps of 8 microseconds, so the range of 0..255
+maps to 0 to 2048 microseconds max.
+
+- **void setBreakTime(uint8_t breakTime)**
+- **uint8_t getBreakTime()**
+
+
 ### Status
 
 Note: these status functions only work in MEASUREMENT MODE. (8.2.9)
@@ -404,12 +427,28 @@ Only NDATA is tested / used yet as it is the most important one (imho).
 
 ### SYN pin
 
-TODO: Not supported yet, investigate.
-
-Used for external trigger of start/stop measurement.
+The SYN pin can be used in two modi:
 
 - SYNS Mode: synchronization of start via the control signal at pin SYN.
 - SYND Mode: synchronization of start and stop of measuring cycles via control signal at pin SYN.
+
+Read the datasheet for details.
+
+#### SYNS
+
+In the SYNS mode the SYN pin is used as an external trigger to start a measurement.
+This has two advantages above the start via an I2C command.
+- the command is much faster than I2C 
+- it allows to start multiple sensors simultaneously.
+
+The pulse length to start a measurement is 3 us @ 1 MHz internal clock
+
+Note: do not forget the pull down resistor.
+
+#### SYND
+
+TODO: The SYND mode is not supported yet, to be investigated.
+
 
 
 ### Debug

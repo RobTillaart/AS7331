@@ -30,10 +30,10 @@
 
 
 //  MODE OPERANDI
-#define AS7331_MODE_CONTINUOUS      0x00  //  future
-#define AS7331_MODE_MANUAL          0x01  //  (default) 0.1.0 version
-#define AS7331_MODE_SYNS            0x02  //  future
-#define AS7331_MODE_SYND            0x03  //  future
+#define AS7331_MODE_CONTINUOUS      0x00
+#define AS7331_MODE_MANUAL          0x01  //  default
+#define AS7331_MODE_SYNS            0x02
+#define AS7331_MODE_SYND            0x03  //  not supported yet
 
 
 //  GAIN OPERANDI
@@ -184,6 +184,14 @@ public:
   float    getUVC_Wm2() { return getUVA_uW() * 0.01; };
 
 
+  //       BREAK-TIME - REGISTER 0x09 BREAK
+  //       step size == 8 us, 0..255 ==> 0..2048 usec.
+  //       to be used to set the time needed to fetch the data
+  //       over I2C, so I2C does not disturb measurements.
+  void     setBreakTime(uint8_t breakTime);
+  uint8_t  getBreakTime();
+
+
   //       DEBUG
   int      getLastError();
 
@@ -191,11 +199,8 @@ public:
   ///////////////////////////////////////////////////
   //
   //  FUTURE
-  //  TODO SYNS and SYND mode
-  //  to investigate some next release
-  //  not tested, use with care.
+  //  TODO SYND mode - not implemented / tested
   //  TODO documentation
-
 
   //       TODO REGISTER 0x07 CREG2
   //       for SYNS / SYND control
@@ -209,24 +214,11 @@ public:
   //  void     setDivider(uint8_t div);
   //  uint8_t  getDivider();
 
-
-  //       BREAK-TIME - REGISTER 0x09 BREAK
-  //       step size == 8 us, 0..255 ==> 0..2048 usec.
-  //
-  //       to be used to set the time needed to fetch the data
-  //       over I2C, so I2C does not disturb measurements.
-  void     setBreakTime(uint8_t breakTime);
-  uint8_t  getBreakTime();
-  //  void setBreakTimeMillis(uint32_t breakTime);  do we need such a thing.
-  //  uint32_t getBreakTimeMillis();  do we need such a thing.
-  //  risk is that it shows more accuracy than exists.
-
-
   //       EDGES - REGISTER 0x09 EDGES
   //       used in SYND only
   //       1..255 edges (0 maps to 1)
-  void     setEdges(uint8_t edges);
-  uint8_t  getEdges();
+  //  void     setEdges(uint8_t edges);
+  //  uint8_t  getEdges();
 
   //       TODO OPTIONS, REGISTER 0x0B OPTREG
   //       read datasheet, low level I2C - INITT_IDX in bit 0.
