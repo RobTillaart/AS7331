@@ -412,7 +412,7 @@ uint8_t AS7331::getDivider();
 // uint8_t AS7331::getEdges()
 // {
   // return _readRegister8(AS7331_REG_EDGES);
-}
+// }
 
 ///////////////////////////////////////////////////
 //

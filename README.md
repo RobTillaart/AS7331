@@ -441,9 +441,9 @@ This has two advantages above the start via an I2C command.
 - the command is much faster than I2C 
 - it allows to start multiple sensors simultaneously.
 
-The pulse length to start a measurement is 3 us @ 1 MHz internal clock
+The pulse length to start a measurement is 3 us @ 1 MHz internal clock.
+The SYN pin should be drawn to GND, so do not forget the pull up resistor!
 
-Note: do not forget the pull down resistor.
 
 #### SYND
 
@@ -465,17 +465,13 @@ TODO: The SYND mode is not supported yet, to be investigated.
 
 #### Should
 
+- implement API for missing registers for 24 bit resolution
+  - investigate 17-24 bits reads?
 - test different configurations (gain Tconv)
 - fix TODO's in code and documentation
-- check API complete
-  - add + test SYNS mode
-  - add + test SYND mode (uses external timing, other math needed)
-  - missing registers?
-  - class per MODE?
-- investigate adjustGainTimeFactor(), must it include CCLK factor?
-  (gain is limited with higher clocks, or should gain be leading?).
-- investigate 17-24 bits reads?
-- add functions around status bits?
+- add + test SYND mode (uses external timing, other math needed)
+- add other missing registers
+- add functions around status bits
 - add return values functions (error not in right MODE?) iso void()
 
 #### Could
