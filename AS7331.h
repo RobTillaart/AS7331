@@ -137,7 +137,7 @@ public:
   //  REGISTER 0x00 OSR
   //  control, partially tested.
   void     stopMeasurement();
-  void     startMeasurement();  //  sets in Measurement mode too.
+  void     startMeasurement();  //  sets Measurement mode too.
   void     powerDown();
   void     powerUp();
   void     setConfigurationMode();
@@ -157,7 +157,7 @@ public:
 
 
   //
-  //  MEASUREMENT STATE
+  //  MEASUREMENT STATUS
   //
   //       OSR in CONFIGURATION MODE
   uint8_t  readOSR();
@@ -230,7 +230,7 @@ private:
   uint8_t  _readRegister8(uint8_t reg);
   uint16_t _readRegister16(uint8_t reg);
 
-  uint8_t  _address = 0x2A;
+  uint8_t  _address;
   TwoWire* _wire;
 
   uint8_t  _mode;

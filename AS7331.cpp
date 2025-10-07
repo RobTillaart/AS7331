@@ -54,7 +54,7 @@ bool AS7331::begin()
   powerUp();
   setConfigurationMode();
   setMode(AS7331_MODE_MANUAL);
-  setGain(AS7331_GAIN_2x);
+  setGain(AS7331_GAIN_16x);
   setConversionTime(AS7331_CONV_064);
   return true;
 }
@@ -77,7 +77,7 @@ void AS7331::softwareReset()
   //  reset internals to defaults
   _error    = AS7331_OK;
   _mode     = AS7331_MODE_MANUAL;
-  _gain     = AS7331_GAIN_2x;
+  _gain     = AS7331_GAIN_16x;
   _convTime = AS7331_CONV_064;
   _adjustGainTimeFactor();
 }
@@ -429,8 +429,8 @@ uint8_t AS7331::getDivider();
 void AS7331::_adjustGainTimeFactor()
 {
   _GainTimeFactor = pow(0.5, (11 - _gain) + _convTime);
-  //  ref: _GainTimeFactor = pow(0.5, (11 - _gain)) * pow(0.5, _convTime);
-  //  Serial.println(_GainTimeFactor, 8);
+  //  opt: _GainTimeFactor = pow(0.5, (11 - _gain)) * pow(0.5, _convTime);
+  //  ref: _GainTimeFactor = 1.0 / pow(2, (11 - _gain)) * 1.0 / pow(2, _convTime);
 }
 
 int AS7331::_writeRegister8(uint8_t reg, uint8_t value)

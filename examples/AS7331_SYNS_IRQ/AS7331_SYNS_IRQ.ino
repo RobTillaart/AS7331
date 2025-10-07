@@ -4,8 +4,11 @@
 // PURPOSE: test basic behaviour
 //     URL: https://github.com/RobTillaart/AS7331
 
-//  Connect the Ready Pin to an IRQ Pin e.g. 2
+//  Connect the RDY Pin to an IRQ Pin of your board e.g. 2
 //  to detect the conversion is ready.
+//
+//  Connect the SYNC pin to 5V via an pull up resistor
+//  and give (short) pulses to GND to trigger conversion.
 
 
 #include "AS7331.h"
