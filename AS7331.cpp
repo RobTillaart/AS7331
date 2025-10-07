@@ -157,7 +157,7 @@ bool AS7331::setConversionTime(uint8_t convTime)
 {
   if (convTime > 15) return false;
   _convTime = convTime;
-  //  handle _convTime == 15 pragmatically for now TODO
+  //  handle _convTime == 15 pragmatically for now
   if (_convTime == 15) _convTime = 0;
 
   _adjustGainTimeFactor();
@@ -386,7 +386,6 @@ int AS7331::getLastError()
 //  FUTURE - CREG2
 //
 /*
-TODO
 void AS7331::enableTime();
 void AS7331::disableTime();
 bool AS7331::isEnabledTime();
@@ -414,11 +413,11 @@ uint8_t AS7331::getDivider();
   // return _readRegister8(AS7331_REG_EDGES);
 // }
 
+
 ///////////////////////////////////////////////////
 //
 //  FUTURE - OPTIONS, REGISTER 0x0B OPTREG
 //
-//  TODO
 
 
 

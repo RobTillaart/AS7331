@@ -56,12 +56,17 @@ Note: The library is not verified against a calibrated UV source, so use with ca
 Datasheet used: v4-00, 2023-Mar-24.
 
 
-#### disclaimer
+#### Disclaimer
 
-The device has more options to configure but these are not all implemented and tested 
-in the library (0.2.0) yet. This is especially true for the 24 bit register and the CREG-2 register.
-So not all combinations of gain and timing etc might work as expected. 
-Please share your insights.
+The device has several options to configure but these are not all 
+implemented and/or tested in the 0.2.0 version of the library.
+This is especially true for the 24 bit register and the CREG-2 register.
+So not all combinations of gain and timing etc. might work as expected.
+Also the SYND mode is not implemented yet.
+In short, the library is work in progress.
+
+That said, the 0.2.0 version is working and useful with limitations.
+Please share your experiences and insights.
 
 
 ### Breaking change 0.2.0
@@ -119,20 +124,26 @@ https://www.tinytronics.nl/nl/sensoren/optisch/licht-en-kleur/as7331-uv-lichtsen
 
 The datasheet states that the device support up to 400 kHz fast mode.
 (not verified the actual range)
-As the exposure time "blocks the device" quite some time, the only relevant 
+As the exposure time "blocks the device" quite some time, the most relevant 
 function to test seems to be **conversionReady()** as that can be called 
-many times.
+multiple times in a project. 
+A small performance sketch shows that **getUVA_uW()** performs similar, which
+is logical as it also fetches 2 bytes (0.2.0 version).
 
 |  Clock     |  time (us)  |  Notes  |
 |:----------:|:-----------:|:--------|
-|   100 KHz  |             |  default
-|   200 KHz  |             |
-|   300 KHz  |             |
-|   400 KHz  |             |  max datasheet
-|   500 KHz  |             |
-|   600 KHz  |             |
+|   100 kHz  |     548     |  default
+|   200 kHz  |     320     |
+|   300 kHz  |     232     |
+|   400 kHz  |     196     |  max datasheet
+|   500 kHz  |     176     |
+|   600 kHz  |     160     |
+|   700 kHz  |     148     |
+|   800 kHz  |     140     |
 
-TODO: write and run performance sketch on hardware.
+Conclusion, running at 400 kHz (max datasheet) is more than 2.5x faster.
+Going beyond the 400 kHz could save another ~25% but it is not known how 
+this affect the quality of the readings and lifetime of the device.
 
 
 ### I2C address
@@ -208,10 +219,11 @@ Note: these functions only work in CONFIGURATION MODE.
 For temporary saving of energy one can put the device in a standby mode.
 Standby works in MEASUREMENT MODE only.
 
-Read the datasheet for the details.
+Read the datasheet for the details, e.g. page 20 figure 14.
 
-- **void setStandByOn()** idem.
-- **void setStandByOff()** idem.
+- **void setStandByOn()** idem. (set Standby)
+- **void setStandByOff()** idem. (Idle, or convert or ..)
+- **uint8_t getStandByMode()** returns 0 == StandBy, 1 == Idle, Convert ...
 
 Maximum saving of energy can be reached with powerDown.
 These power functions works in both CONFIGURATION and MEASUREMENT MODE
@@ -447,8 +459,7 @@ The SYN pin should be drawn to GND, so do not forget the pull up resistor!
 
 #### SYND
 
-TODO: The SYND mode is not supported yet, to be investigated.
-
+The SYND mode is not supported yet, needs investigation.
 
 
 ### Debug
@@ -465,24 +476,23 @@ TODO: The SYND mode is not supported yet, to be investigated.
 
 #### Should
 
-- implement API for missing registers for 24 bit resolution
+- implement API for missing registers 
   - investigate 17-24 bits reads?
+  - add + test SYND mode (uses external timing, other math needed)
 - test different configurations (gain Tconv)
 - fix TODO's in code and documentation
-- add + test SYND mode (uses external timing, other math needed)
-- add other missing registers
 - add functions around status bits
 - add return values functions (error not in right MODE?) iso void()
+- add SYN pin as part of the library, param begin().
 
 #### Could
 
 - reorganize code
-- measure I2C performance (as conversion time can be long not relevant?)
 - check handle Tconv == 15 case (last column) correctly.
 - mention VEML6070 ?
 - write documentation (code) from state machine pov?
 - Split status en OSR? Yes/No?
-  - not clear benefit / usage ?
+  - not clear benefit / usage / performance ?
 - extend unit tests
 
 #### Wont

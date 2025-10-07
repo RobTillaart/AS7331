@@ -68,7 +68,7 @@
 #define AS7331_CONV_4096            0x0C
 #define AS7331_CONV_8192            0x0D
 #define AS7331_CONV_16384           0x0E
-#define AS7331_CONV_001xx           0x0F   //  TODO check datasheet
+#define AS7331_CONV_001xx           0x0F   //  check datasheet
 
 
 //  CLOCK FREQUENCY OPERANDI
@@ -98,7 +98,7 @@ public:
   //  CONSTRUCTOR
   //
   AS7331(uint8_t address, TwoWire *wire = &Wire);
-  bool     begin();  //  uint8_t RDY = 255, uint8_t SYN = 255); TODO
+  bool     begin();
   bool     isConnected();
   uint8_t  getAddress();  //  debug purpose
   void     softwareReset();
@@ -109,10 +109,11 @@ public:
   //  MODE,  REGISTER 0x08 CREG3
   bool     setMode(uint8_t mode = AS7331_MODE_MANUAL);
   uint8_t  getMode();  //  from device.
-  //  STANDBY
+  //  STANDBY  (e.g. page 20)
+  //  0 == StandBy, 1 == Idle, Convert, ...
   void     setStandByOn();
   void     setStandByOff();
-  uint8_t  getStandByMode();  //  1 == ON, 0 == OFF TODO DOC
+  uint8_t  getStandByMode();
 
 
   //  GAIN & TIMING, REGISTER 0x06 CREG1
@@ -184,8 +185,8 @@ public:
   float    getUVC_Wm2() { return getUVA_uW() * 0.01; };
 
 
-  //       BREAK-TIME - REGISTER 0x09 BREAK
-  //       step size == 8 us, 0..255 ==> 0..2048 usec.
+  //       BREAK-TIME, REGISTER 0x09 BREAK
+  //       step size == 8 us, 0..255 ==> 0..2040 usec.
   //       to be used to set the time needed to fetch the data
   //       over I2C, so I2C does not disturb measurements.
   void     setBreakTime(uint8_t breakTime);
@@ -200,7 +201,7 @@ public:
   //
   //  FUTURE
   //  TODO SYND mode - not implemented / tested
-  //  TODO documentation
+  //
 
   //       TODO REGISTER 0x07 CREG2
   //       for SYNS / SYND control
