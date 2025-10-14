@@ -3,7 +3,7 @@
 //    FILE: AS7331.h
 //  AUTHOR: Rob Tillaart
 //    DATE: 2025-08-28
-// VERSION: 0.2.0
+// VERSION: 0.3.0
 // PURPOSE: Arduino library for AS7331 UV sensor
 //     URL: https://github.com/RobTillaart/AS7331
 //          https://www.sparkfun.com/products/23517
@@ -15,7 +15,7 @@
 #include "Wire.h"
 
 
-#define AS7331_LIB_VERSION          (F("0.2.0"))
+#define AS7331_LIB_VERSION          (F("0.3.0"))
 
 #ifndef AS7331_DEFAULT_ADDRESS
 #define AS7331_DEFAULT_ADDRESS      0x74
@@ -229,7 +229,7 @@ public:
   //       OPTREG.INITT_IDX(0)
   void     setInitIdx();
   void     clrInitIdx();
-  
+
   //
   //  OUTCONV = timing ?
   uint32_t getOUTCONV();

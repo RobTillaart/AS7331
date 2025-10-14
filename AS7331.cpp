@@ -2,7 +2,7 @@
 //    FILE: AS7331.cpp
 //  AUTHOR: Rob Tillaart
 //    DATE: 2025-08-28
-// VERSION: 0.2.0
+// VERSION: 0.3.0
 // PURPOSE: Arduino library for AS7331 UV sensor
 //     URL: https://github.com/RobTillaart/AS7331
 
