@@ -84,6 +84,8 @@ Search for Lambert’s Cosine Law on Wikipedia for details.
 
 µ = ALT-230,
 λ = ALT-955,
+Ω = ALT-234
+
 Via emoji tab: WIN .  => Ω tab => search for λ)
 
 
@@ -197,7 +199,7 @@ Returns true if the device address can be found on I2C bus.
   - **AS7331_CONV_064**
 - **bool isConnected()** Returns true if the device address can be found on I2C bus.
 - **uint8_t getAddress()** Returns the device address set in the constructor.
-- **void softwareReset()** reset to initial state.
+- **void softwareReset()** reset to the initial state.
 
 
 ### Mode
@@ -252,7 +254,7 @@ Note the factors decrease while the gain value increases.
 See table below.
   
 - **bool setGain(uint8_t gain)** sets the gain, if value > 11 the
-function returns false.
+function returns false and nothing is changed.
 - **uint8_t getGain()** returns the set value from device.
 
 |  Define             |  Value  |  Notes  |
@@ -447,6 +449,7 @@ The SYN pin can be used in two modi:
 
 Read the datasheet for details.
 
+
 ### SYNS
 
 In the SYNS mode the SYN pin is used as an external trigger to start a measurement.
@@ -456,6 +459,7 @@ This has two advantages above the start via an I2C command.
 
 The pulse length to start a measurement is 3 us @ 1 MHz internal clock.
 The SYN pin should be drawn to GND, so do not forget the pull up resistor!
+
 
 ### SYND
 
@@ -539,7 +543,7 @@ a single 24 bit value.
 - reorganize code
 - check handle Tconv == 15 case (last column) correctly.
 - mention VEML6070 ?
-- write documentation (code) from state machine pov?
+- write documentation (code) from state machine point of view?
 - Split status en OSR? Yes/No?
   - not clear benefit / usage / performance ?
 - extend unit tests

@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [0.4.0] - 2026-01-14
+- fix #6, typo in UVB and UVC wrapper functions.
+- update GitHub actions
+- minor edits
+
+----
+
 ## [0.3.0] - 2025-10-10
 - Fix #4, implement missing functionality
 - update documentation

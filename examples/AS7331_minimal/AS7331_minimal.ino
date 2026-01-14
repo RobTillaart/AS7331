@@ -36,7 +36,7 @@ void setup()
   */
   mySensor.powerUp();
   mySensor.setConversionTime(AS7331_CONV_4096);  // just make it a bit slow
-  
+
   mySensor.startMeasurement();
 }
 
