@@ -171,12 +171,17 @@ public:
   bool     conversionReady();
 
   //       READ the measurements
+  //       raw measurements
+  uint16_t getRawUVA();
+  uint16_t getRawUVB();
+  uint16_t getRawUVC();
+  //       converted measurements
   //       returns in microWatts / cm2
   float    getUVA_uW();
   float    getUVB_uW();
   float    getUVC_uW();
   float    getCelsius();  //  inner temperature.
-  //  wrappers
+  //       wrappers
   //       returns in milliWatts / cm2
   float    getUVA_mW() { return getUVA_uW() * 0.001; };
   float    getUVB_mW() { return getUVB_uW() * 0.001; };
@@ -252,6 +257,10 @@ private:
   uint8_t  _convTime;
   uint8_t  _error;
 
+  uint16_t _rawUVA;
+  uint16_t _rawUVB;
+  uint16_t _rawUVC;
+  
   //  to adjust when gain or Tconv changes.
   void     _adjustGainTimeFactor();
   float    _GainTimeFactor = 1.0f;

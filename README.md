@@ -385,11 +385,21 @@ Read the datasheet for details (7.4 Transfer function).
 
 Note: these functions only work in MEASUREMENT MODE. (8.2.9)
 
+Raw register data:
+
+- **uint16_t getRawUVA()** returns register value for UVA
+- **uint16_t getRawUVB()** returns register value for UVB
+- **uint16_t getRawUVC()** returns register value for UVC
+
+Processed data:
+
 - **float getUVA_uW()** returns in microWatts / cm2
 - **float getUVB_uW()** returns in microWatts / cm2
 - **float getUVC_uW()** returns in microWatts / cm2
-- **float getCelsius()** returns temperature in Celsius.
 
+Temperature:
+
+- **float getCelsius()** returns inner temperature in Celsius.
 
 #### Convenience wrappers
 
