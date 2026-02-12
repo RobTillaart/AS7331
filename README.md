@@ -51,7 +51,7 @@ In MANUAL mode one needs to restart a measurement manually.
 
 Feedback as always is welcome.
 
-Note: The library is not verified against a calibrated UV source, so use with care. 
+Note: Use with care. The library has been tested with a calibrated UVA source ([data](<./calibration/readme.md>)), but the sensor responsivity curve is not flat. For sun-like light, you can probably expect to get within 15% of the real value.
 
 Datasheet used: v4-00, 2023-Mar-24.
 
@@ -74,7 +74,7 @@ Version 0.2.0 has been verified to work in MANUAL, CONTINUOUS and SYNS mode.
 Examples have been added to show the operation of the library.
 
 
-### Angle sensitivity
+### Angle dependence
 
 Angle of incidence is +-10 degrees, so Cosine law is not really needed (imho).
 Search for Lambert’s Cosine Law on Wikipedia for details.
@@ -109,7 +109,7 @@ Other
 
 ### Tested
 
-This library is partially tested with hardware Arduino UNO R3.
+This library is partially tested with hardware Arduino UNO R3 and ESP8266.
 As there is no board specific code, it is expected to work on other boards too.
 Examples work but not all functions of the library are verified (or calibrated).
 See also disclaimer.
