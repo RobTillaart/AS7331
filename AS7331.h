@@ -1,9 +1,9 @@
 #pragma once
 //
 //    FILE: AS7331.h
-//  AUTHOR: Rob Tillaart
+//  AUTHOR: Rob Tillaart, Finn Reichertz
 //    DATE: 2025-08-28
-// VERSION: 0.4.0
+// VERSION: 0.5.0
 // PURPOSE: Arduino library for AS7331 UV sensor
 //     URL: https://github.com/RobTillaart/AS7331
 //          https://www.sparkfun.com/products/23517
@@ -15,7 +15,7 @@
 #include "Wire.h"
 
 
-#define AS7331_LIB_VERSION          (F("0.4.0"))
+#define AS7331_LIB_VERSION          (F("0.5.0"))
 
 #ifndef AS7331_DEFAULT_ADDRESS
 #define AS7331_DEFAULT_ADDRESS      0x74
@@ -264,7 +264,7 @@ private:
   uint16_t _rawUVA;
   uint16_t _rawUVB;
   uint16_t _rawUVC;
-  
+
   //  to adjust when gain or Tconv changes.
   void     _adjustGainTimeFactor();
   float    _GainTimeFactor = 1.0f;

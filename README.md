@@ -20,7 +20,9 @@ Arduino library for the I2C AS7331 UV sensor. UV-A, UV-B, UV-C
 
 Do not expose yourself to the sun or any other UV source too long.
 
-When working with UV light, natural or artificial (TL LED laser a.o.) use appropriate shielding. Do not look right into UV light sources (e.g. the sun). Do not expose yourself to any UV source too long.
+When working with UV light, natural or artificial (TL LED laser a.o.) use appropriate shielding. 
+Do not look right into UV light sources (e.g. the sun). 
+Do not expose yourself to any UV source too long.
 
 ### Datasheet warning:
 
@@ -49,14 +51,27 @@ The sensor can be used in a **MANUAL** or **CONTINUOUS** mode and has a **RDY** 
 for an interrupt to indicate conversion is ready. Polling mode is also supported.
 In MANUAL mode one needs to restart a measurement manually.
 
-Feedback as always is welcome.
+This library is co-authored / developed with Finn Reichertz, who did all the work 
+on calibrating and a lot of testing.
+His fork of the library might contain features or info not synchronized yet
+- https://github.com/Finnventor/AS7331/tree/master
 
-Note: Use with care. The library has been tested with a calibrated UVA source ([data](<./calibration/readme.md>)), but the sensor responsivity curve is not flat. For sun-like light, you can probably expect to get within 15% of the real value.
+Note: Use with care. The library has been tested with a calibrated UVA source 
+([data](<./calibration/readme.md>)), but the sensor responsivity curve is not flat. 
+For sun-like light, you can probably expect to get within 15% of the real value.
 
 Datasheet used: v4-00, 2023-Mar-24.
 
+Feedback as always is welcome.
 
-### Disclaimer
+
+### Breaking change 0.5.0
+
+The scale of the radiation was of by factor 1000 (issue 8) which is fixed in 0.5.0.
+This makes all pre-0.5.0 versions obsolete.
+
+
+### Disclaimer 0.3.0
 
 In version 0.3.0 access to the "missing" registers of the AS7331 is implemented, 
 however proper working of these registers are not tested. So use them with care.
@@ -90,6 +105,8 @@ Via emoji tab: WIN .  => Ω tab => search for λ)
 
 
 ### Related
+
+- https://github.com/Finnventor/AS7331 - fork of co-author / developer.
 
 UV related
 
@@ -191,7 +208,8 @@ too if they are behind the multiplexer.
 
 ### Constructor
 
-- **AS7331(uint8_t address, TwoWire \*wire = &Wire)** set the I2C address to use and optional select an I2C bus.
+- **AS7331(uint8_t address, TwoWire \*wire = &Wire)** set the I2C address to use 
+and optional select an I2C bus.
 - **bool begin()** resets the device to the default configuration.
 Returns true if the device address can be found on I2C bus.
   - **AS7331_MODE_MANUAL**
